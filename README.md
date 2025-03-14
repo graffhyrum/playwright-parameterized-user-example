@@ -2,14 +2,20 @@
 
 To install dependencies:
 
-```bash
+```shell
 bun install
 ```
 
-To run:
+To run the demo server:
 
-```bash
-bun run index.ts
+```shell
+bun run src/demoServer/index.ts
+```
+
+To run the tests:
+
+```shell
+bun run test
 ```
 
 This project was created using `bun init` in bun v1.2.5. [Bun](https://bun.sh) is a fast all-in-one JavaScript runtime.

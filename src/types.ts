@@ -7,6 +7,14 @@ export const testableEnvironments = [
     'development',
 ] as const;
 export type TestableEnvironment = typeof testableEnvironments[number];
+export function isTestableEnvironment(value: string): value is TestableEnvironment {
+    return testableEnvironments.includes(value as TestableEnvironment);
+}
+export function assertIsTestableEnvironment(value: string): asserts value is TestableEnvironment {
+    if (!isTestableEnvironment(value)) {
+        throw new Error(`Invalid testable environment: ${value}`);
+    }
+}
 export const userTiers = [
     'free',
     'paid'

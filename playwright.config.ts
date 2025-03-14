@@ -1,6 +1,8 @@
 import { defineConfig } from '@playwright/test';
 import {getProjects} from "./src/getProjects.ts";
+import {CONFIG} from "./CONFIG.ts";
 
+const serverURL = `http://${CONFIG.host}:${CONFIG.port}`;
 /**
  * See https://playwright.dev/docs/test-configuration.
  */
@@ -12,12 +14,17 @@ export default defineConfig({
   workers: process.env.CI ? 1 : undefined,
   reporter: 'html',
   use: {
-    // baseURL: 'http://127.0.0.1:3000',
-    trace: 'on-first-retry',
+    baseURL: serverURL,
+    trace: 'on',
   },
 
   /* Configure projects for major browsers */
-  projects: getProjects()
+  projects: getProjects(),
+
+  webServer:{
+    command: "bun demoServer/index.ts",
+    url: serverURL
+  }
 });
 
 
