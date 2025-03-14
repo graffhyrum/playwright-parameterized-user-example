@@ -1,120 +1,123 @@
-import {type BunRequest, serve} from "bun";
-import {CONFIG} from "../../CONFIG.ts";
+import { type BunRequest, serve } from "bun";
+import { CONFIG } from "../../CONFIG.ts";
 import {
-  assertIsTestableEnvironment,
-  isTestableEnvironment,
-  type TestableEnvironment,
-  testableEnvironments,
-  type UserTier,
-  userTiers
+	type TestableEnvironment,
+	type UserTier,
+	assertIsTestableEnvironment,
+	isTestableEnvironment,
+	testableEnvironments,
+	userTiers,
 } from "../types.ts";
 
 // Define types for user and session objects
 type User = {
-  username: string;
-  password: string;
-  tier: UserTier;
+	username: string;
+	password: string;
+	tier: UserTier;
 };
 
 type Session = {
-  username: string;
-  expires: number;
-  tier: UserTier;
+	username: string;
+	expires: number;
+	tier: UserTier;
 };
 
-
 // Structure users by environment and maintain tier information
-const users: Map<TestableEnvironment, Map<User['username'], User>> = new Map();
+const users: Map<TestableEnvironment, Map<User["username"], User>> = new Map();
 
 // Initialize user storage for each environment
-testableEnvironments.forEach(env => {
-  users.set(env, new Map());
+testableEnvironments.forEach((env) => {
+	users.set(env, new Map());
 });
-
 
 const sessions: Map<TestableEnvironment, Map<string, Session>> = new Map();
 
 // Initialize session storage for each environment
-testableEnvironments.forEach(env => {
-  sessions.set(env, new Map());
+testableEnvironments.forEach((env) => {
+	sessions.set(env, new Map());
 });
 
 const server = serve({
-  hostname: CONFIG.host,
-  port: CONFIG.port,
-  development: true,
-  routes: {
-    "/": async req => Response.redirect('/production/'),
-    "/:env/": async (req) => handleHome(req),
-    "/:env/login/": async (req) => handleLogin(req),
-    "/:env/register": async (req) => handleRegister(req),
-    "/:env/logout": async (req) => handleLogout(req),
-    "/:env/profile": async (req) => handleProfile(req),
-  },
-  fetch(req) {
-    const url = new URL(req.url);
-    const path = url.pathname;
-    return new Response(`Path ${path} Not Found`, {status: 404});
-  },
+	hostname: CONFIG.host,
+	port: CONFIG.port,
+	development: true,
+	routes: {
+		"/": async (req) => Response.redirect("/production/"),
+		"/:env/": async (req) => handleHome(req),
+		"/:env/login/": async (req) => handleLogin(req),
+		"/:env/register": async (req) => handleRegister(req),
+		"/:env/logout": async (req) => handleLogout(req),
+		"/:env/profile": async (req) => handleProfile(req),
+	},
+	fetch(req) {
+		const url = new URL(req.url);
+		const path = url.pathname;
+		return new Response(`Path ${path} Not Found`, { status: 404 });
+	},
 });
 
 console.log(`Server running at http://localhost:${server.port}`);
 
 // Helper function to validate environment
 function validateEnvironment(env: string): Response | null {
-  if (!isTestableEnvironment(env)) {
-    return new Response(`Invalid environment: ${env}`, {status: 404});
-  }
-  return null;
+	if (!isTestableEnvironment(env)) {
+		return new Response(`Invalid environment: ${env}`, { status: 404 });
+	}
+	return null;
 }
 
-async function handleHome(req: BunRequest<'/:env/'>): Promise<Response> {
-  const {env} = req.params;
-  const envError = validateEnvironment(env);
-  if (envError) return envError;
-  assertIsTestableEnvironment(env)
+async function handleHome(req: BunRequest<"/:env/">): Promise<Response> {
+	const { env } = req.params;
+	const envError = validateEnvironment(env);
+	if (envError) return envError;
+	assertIsTestableEnvironment(env);
 
-  // Get session from cookies
-  const cookies = parseCookies(req.headers.get('cookie') ?? '');
-  const sessionId = cookies.sessionId;
+	// Get session from cookies
+	const cookies = parseCookies(req.headers.get("cookie") ?? "");
+	const sessionId = cookies.sessionId;
 
-  let content;
-  if (sessionId &&
-      sessions.get(env)?.has(sessionId) &&
-      (
-          sessions.get(env)?.get(sessionId)?.expires ?? 0
-      ) >
-      Date.now()) {
-    const session = sessions.get(env)?.get(sessionId);
-    const username = session?.username ?? '';
-    const tier = session?.tier ?? '';
+	let content;
+	if (
+		sessionId &&
+		sessions.get(env)?.has(sessionId) &&
+		(sessions.get(env)?.get(sessionId)?.expires ?? 0) > Date.now()
+	) {
+		const session = sessions.get(env)?.get(sessionId);
+		const username = session?.username ?? "";
+		const tier = session?.tier ?? "";
 
-    content = `
+		content = `
             <h1>Welcome to ${env} environment</h1>
             <p>Hello, ${username} (${tier} tier)</p>
             <a href="/${env}/profile">Profile</a>
             <a href="/${env}/logout">Logout</a>
         `;
-  } else {
-    content = `
+	} else {
+		content = `
             <h1>Welcome to ${env} environment</h1>
             <p>Please <a href="/${env}/login/">login</a> or <a href="/${env}/register">register</a></p>
         `;
-  }
+	}
 
-  return new Response(htmlTemplate(`${env.charAt(0).toUpperCase() + env.slice(1)} Environment`, content), {
-    headers: {"Content-Type": "text/html"}
-  });
+	return new Response(
+		htmlTemplate(
+			`${env.charAt(0).toUpperCase() + env.slice(1)} Environment`,
+			content,
+		),
+		{
+			headers: { "Content-Type": "text/html" },
+		},
+	);
 }
 
 async function handleLogin(req: BunRequest<"/:env/login/">): Promise<Response> {
-  const {env} = req.params;
-  assertIsTestableEnvironment(env)
-  const envError = validateEnvironment(env);
-  if (envError) return envError;
+	const { env } = req.params;
+	assertIsTestableEnvironment(env);
+	const envError = validateEnvironment(env);
+	if (envError) return envError;
 
-  if (req.method === 'GET') {
-    const content = `
+	if (req.method === "GET") {
+		const content = `
             <h1>Login to ${env}</h1>
             <form action="/${env}/login/" method="POST">
                 <label for="username">Username:</label>
@@ -126,61 +129,62 @@ async function handleLogin(req: BunRequest<"/:env/login/">): Promise<Response> {
                 <button type="submit">Login</button>
             </form>
         `;
-    return new Response(htmlTemplate(`Login to ${env}`, content), {
-      headers: {"Content-Type": "text/html"}
-    });
-  }
+		return new Response(htmlTemplate(`Login to ${env}`, content), {
+			headers: { "Content-Type": "text/html" },
+		});
+	}
 
-  const formData = await req.formData();
-  const username = formData.get("username");
-  const password = formData.get("password");
+	const formData = await req.formData();
+	const username = formData.get("username");
+	const password = formData.get("password");
 
-  if (!username || !password) {
-    return new Response("Missing username or password", {status: 400});
-  }
-  assertIsString(username)
+	if (!username || !password) {
+		return new Response("Missing username or password", { status: 400 });
+	}
+	assertIsString(username);
 
-  const user = users.get(env)?.get(username);
-  if (user && user.password === password) {
-    // Create session
-    const sessionId = generateSessionId();
-    // Session expires after 24 hours
-    const expiryTime = Date.now() + 24 * 60 * 60 * 1000;
-    sessions.get(env)?.set(sessionId, {
-      username: username.toString(),
-      expires: expiryTime,
-      tier: user.tier
-    });
+	const user = users.get(env)?.get(username);
+	if (user && user.password === password) {
+		// Create session
+		const sessionId = generateSessionId();
+		// Session expires after 24 hours
+		const expiryTime = Date.now() + 24 * 60 * 60 * 1000;
+		sessions.get(env)?.set(sessionId, {
+			username: username.toString(),
+			expires: expiryTime,
+			tier: user.tier,
+		});
 
-    // Redirect to environment home with session cookie
-    return new Response(null, {
-      status: 302,
-      headers: {
-        "Location": `/${env}/`,
-        "Set-Cookie": `sessionId=${sessionId}; Path=/; HttpOnly; Max-Age=${24 * 60 * 60}`
-      }
-    });
-  } else {
-    const content = `
+		// Redirect to environment home with session cookie
+		return new Response(null, {
+			status: 302,
+			headers: {
+				Location: `/${env}/`,
+				"Set-Cookie": `sessionId=${sessionId}; Path=/; HttpOnly; Max-Age=${24 * 60 * 60}`,
+			},
+		});
+	} else {
+		const content = `
             <h1>Login Failed</h1>
             <p>Invalid credentials</p>
             <a href="/${env}/login/">Try again</a>
         `;
-    return new Response(htmlTemplate("Login Failed", content), {
-      headers: {"Content-Type": "text/html"}
-    });
-  }
+		return new Response(htmlTemplate("Login Failed", content), {
+			headers: { "Content-Type": "text/html" },
+		});
+	}
 }
 
+async function handleRegister(
+	req: BunRequest<"/:env/register">,
+): Promise<Response> {
+	const { env } = req.params;
+	const envError = validateEnvironment(env);
+	if (envError) return envError;
+	assertIsTestableEnvironment(env);
 
-async function handleRegister(req: BunRequest<"/:env/register">): Promise<Response> {
-  const {env} = req.params;
-  const envError = validateEnvironment(env);
-  if (envError) return envError;
-  assertIsTestableEnvironment(env)
-
-  if (req.method === 'GET') {
-    const content = `
+	if (req.method === "GET") {
+		const content = `
             <h1>Register for ${env}</h1>
             <form action="/${env}/register" method="POST">
                 <label for="username">Username:</label>
@@ -191,138 +195,144 @@ async function handleRegister(req: BunRequest<"/:env/register">): Promise<Respon
                 <br>
                 <label for="tier">User Tier:</label>
                 <select id="tier" name="tier" required>
-                    ${userTiers.map(tier => `<option value="${tier}">${tier}</option>`).join('')}
+                    ${userTiers.map((tier) => `<option value="${tier}">${tier}</option>`).join("")}
                 </select>
                 <br>
                 <button type="submit">Register</button>
             </form>
         `;
-    return new Response(htmlTemplate(`Register for ${env}`, content), {
-      headers: {"Content-Type": "text/html"}
-    });
-  }
+		return new Response(htmlTemplate(`Register for ${env}`, content), {
+			headers: { "Content-Type": "text/html" },
+		});
+	}
 
-  const formData = await req.formData();
-  const username = formData.get("username")
-  assertIsString(username)
-  const password = formData.get("password")
-  assertIsString(password)
-  const tier = formData.get("tier")
-  assertIsString(tier)
+	const formData = await req.formData();
+	const username = formData.get("username");
+	assertIsString(username);
+	const password = formData.get("password");
+	assertIsString(password);
+	const tier = formData.get("tier");
+	assertIsString(tier);
 
-  if (!username || !password) {
-    return new Response("Missing username or password", {status: 400});
-  }
+	if (!username || !password) {
+		return new Response("Missing username or password", { status: 400 });
+	}
 
-  if (!tier || !userTiers.includes(tier as UserTier)) {
-    return new Response("Invalid user tier", {status: 400});
-  }
+	if (!tier || !userTiers.includes(tier as UserTier)) {
+		return new Response("Invalid user tier", { status: 400 });
+	}
 
-  if (users.get(env)?.has(username)) {
-    const content = `
+	if (users.get(env)?.has(username)) {
+		const content = `
             <h1>Registration Failed</h1>
             <p>Username already exists</p>
             <a href="/${env}/register">Try again</a>
         `;
-    return new Response(htmlTemplate("Registration Failed", content), {
-      headers: {"Content-Type": "text/html"}
-    });
-  }
+		return new Response(htmlTemplate("Registration Failed", content), {
+			headers: { "Content-Type": "text/html" },
+		});
+	}
 
-  // Create user with tier
-  users.get(env)?.set(username, {
-    username,
-    password,
-    tier: tier as UserTier
-  });
+	// Create user with tier
+	users.get(env)?.set(username, {
+		username,
+		password,
+		tier: tier as UserTier,
+	});
 
-
-  return new Response(null, {
-    status: 302,
-    headers: {
-      "Location": `/${env}/login/`
-    }
-  });
+	return new Response(null, {
+		status: 302,
+		headers: {
+			Location: `/${env}/login/`,
+		},
+	});
 }
 
-async function handleLogout(req: BunRequest<"/:env/logout">): Promise<Response> {
-  const {env} = req.params;
-  const envError = validateEnvironment(env);
-  if (envError) return envError;
+async function handleLogout(
+	req: BunRequest<"/:env/logout">,
+): Promise<Response> {
+	const { env } = req.params;
+	const envError = validateEnvironment(env);
+	if (envError) return envError;
 
-  // Clear the session cookie
-  return new Response(null, {
-    status: 302,
-    headers: {
-      "Location": `/${env}/`,
-      "Set-Cookie": `sessionId=; Path=/; HttpOnly; Max-Age=0`
-    }
-  });
+	// Clear the session cookie
+	return new Response(null, {
+		status: 302,
+		headers: {
+			Location: `/${env}/`,
+			"Set-Cookie": `sessionId=; Path=/; HttpOnly; Max-Age=0`,
+		},
+	});
 }
 
-async function handleProfile(req: BunRequest<"/:env/profile">): Promise<Response> {
-  const {env} = req.params
-  const envError = validateEnvironment(env);
-  if (envError) return envError;
-  assertIsTestableEnvironment(env)
+async function handleProfile(
+	req: BunRequest<"/:env/profile">,
+): Promise<Response> {
+	const { env } = req.params;
+	const envError = validateEnvironment(env);
+	if (envError) return envError;
+	assertIsTestableEnvironment(env);
 
-  const cookies = parseCookies(req.headers.get('cookie') ?? '');
-  const sessionId = cookies.sessionId;
+	const cookies = parseCookies(req.headers.get("cookie") ?? "");
+	const sessionId = cookies.sessionId;
 
-  if (!sessionId ||
-      !sessions.get(env)?.has(sessionId) ||
-      (
-          sessions.get(env)?.get(sessionId)?.expires ?? 0
-      ) <=
-      Date.now()) {
-    return new Response(null, {
-      status: 302,
-      headers: {
-        "Location": `/${env}/login/`
-      }
-    });
-  }
+	if (
+		!sessionId ||
+		!sessions.get(env)?.has(sessionId) ||
+		(sessions.get(env)?.get(sessionId)?.expires ?? 0) <= Date.now()
+	) {
+		return new Response(null, {
+			status: 302,
+			headers: {
+				Location: `/${env}/login/`,
+			},
+		});
+	}
 
-  const session = sessions.get(env)?.get(sessionId);
-  const username = session?.username ?? '';
-  const tier = session?.tier ?? '';
+	const session = sessions.get(env)?.get(sessionId);
+	const username = session?.username ?? "";
+	const tier = session?.tier ?? "";
 
-
-  const content = `
+	const content = `
         <h1>User Profile (${env})</h1>
         <p>Username: ${username}</p>
         <p>User Tier: ${tier}</p>
         <a href="/${env}/">Back to Home</a>
     `;
 
-  return new Response(htmlTemplate("User Profile", content), {
-    headers: {"Content-Type": "text/html"}
-  });
+	return new Response(htmlTemplate("User Profile", content), {
+		headers: { "Content-Type": "text/html" },
+	});
 }
 
 // Helper function to generate a session ID
 function generateSessionId(): string {
-  return Bun.randomUUIDv7();
+	return Bun.randomUUIDv7();
 }
 
 // Helper function to parse cookies
 function parseCookies(cookieHeader: string): Record<string, string> {
-  return cookieHeader
-      .split(';')
-      .map(
-          cookie => cookie.trim().split('=') as [string, string]
-      )
-      .reduce((acc, [name, value]) => {
-        if (name) {
-          acc[name] = value;
-        }
-        return acc;
-      }, {} as Record<string, string>);
+	return cookieHeader
+		.split(";")
+		.map((cookie) => cookie.trim().split("=") as [string, string])
+		.reduce(
+			(acc, [name, value]) => {
+				if (name) {
+					acc[name] = value;
+				}
+				return acc;
+			},
+			{} as Record<string, string>,
+		);
 }
 
 // HTML template helper function
-function htmlTemplate(title: string, content: string, username?: string): string {
-  return `
+function htmlTemplate(
+	title: string,
+	content: string,
+	username?: string,
+): string {
+	return `
         <!DOCTYPE html>
         <html lang="en">
         <head>
@@ -352,11 +362,11 @@ function htmlTemplate(title: string, content: string, username?: string): string
 }
 
 function createNavBar(username?: string): string {
-  const authLinks = username
-      ? `<li><a href="/profile">Profile (${username})</a></li><li><a href="/logout">Logout</a></li>`
-      : `<li><a href="/login">Login</a></li><li><a href="/register">Register</a></li>`;
+	const authLinks = username
+		? `<li><a href="/profile">Profile (${username})</a></li><li><a href="/logout">Logout</a></li>`
+		: `<li><a href="/login">Login</a></li><li><a href="/register">Register</a></li>`;
 
-  return `
+	return `
     <nav>
         <ul style="display: flex; list-style: none; gap: 20px; padding: 10px; background-color: #f0f0f0;">
             <li><a href="/">Home</a></li>
@@ -365,9 +375,8 @@ function createNavBar(username?: string): string {
     </nav>`;
 }
 
-
 function assertIsString(x: unknown): asserts x is string {
-  if (typeof x !== 'string') {
-    throw new Error("Expected a string");
-  }
+	if (typeof x !== "string") {
+		throw new Error("Expected a string");
+	}
 }

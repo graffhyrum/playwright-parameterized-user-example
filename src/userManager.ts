@@ -1,4 +1,4 @@
-import type {TestableEnvironment, User, UserTier} from "./types.ts";
+import type { TestableEnvironment, User, UserTier } from "./types.ts";
 
 export function getUserManager(
 	tier: UserTier,
@@ -10,9 +10,9 @@ export function getUserManager(
 			return Promise.resolve({
 				tier,
 				env: thisEnvironment,
-				username: 'username',
-				password: 'password'
-			})
+				username: "username",
+				password: "password",
+			});
 		},
 		delete: async (user: User) => {
 			// Delete the user

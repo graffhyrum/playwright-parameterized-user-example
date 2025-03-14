@@ -1,36 +1,37 @@
-import type {Page} from "@playwright/test";
-import type {LoginPageObject} from "./POMs/loginPage.ts";
+import type { Page } from "@playwright/test";
+import type { LoginPageObject } from "./POMs/loginPage.ts";
 
 export const testableEnvironments = [
-    'production',
-    'staging',
-    'development',
+	"production",
+	"staging",
+	"development",
 ] as const;
-export type TestableEnvironment = typeof testableEnvironments[number];
-export function isTestableEnvironment(value: string): value is TestableEnvironment {
-    return testableEnvironments.includes(value as TestableEnvironment);
+export type TestableEnvironment = (typeof testableEnvironments)[number];
+export function isTestableEnvironment(
+	value: string,
+): value is TestableEnvironment {
+	return testableEnvironments.includes(value as TestableEnvironment);
 }
-export function assertIsTestableEnvironment(value: string): asserts value is TestableEnvironment {
-    if (!isTestableEnvironment(value)) {
-        throw new Error(`Invalid testable environment: ${value}`);
-    }
+export function assertIsTestableEnvironment(
+	value: string,
+): asserts value is TestableEnvironment {
+	if (!isTestableEnvironment(value)) {
+		throw new Error(`Invalid testable environment: ${value}`);
+	}
 }
-export const userTiers = [
-    'free',
-    'paid'
-] as const
-export type UserTier = typeof userTiers[number];
+export const userTiers = ["free", "paid"] as const;
+export type UserTier = (typeof userTiers)[number];
 export type User = {
-    tier: UserTier
-    env: TestableEnvironment
-    username: string;
-    password: string;
-}
+	tier: UserTier;
+	env: TestableEnvironment;
+	username: string;
+	password: string;
+};
 export type UserFixture = {
-    POMs: {
-        loginPage: LoginPageObject;
-    };
-    env: TestableEnvironment;
-    page: Page;
-    tier: UserTier
-}
+	POMs: {
+		loginPage: LoginPageObject;
+	};
+	env: TestableEnvironment;
+	page: Page;
+	tier: UserTier;
+};
