@@ -3,6 +3,7 @@
   "type": "module",
   "private": true,
   "devDependencies": {
+    "@biomejs/biome": "1.9.4",
     "@playwright/test": "^1.51.0",
     "@types/bun": "^1.2.5"
   },
