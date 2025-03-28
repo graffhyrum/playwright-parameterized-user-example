@@ -3,11 +3,11 @@
   "type": "module",
   "private": true,
   "devDependencies": {
-    "@playwright/test": "^1.51.0",
-    "@types/bun": "^1.2.5"
+    "@playwright/test": "^1.51.1",
+    "@types/bun": "^1.2.8"
   },
   "peerDependencies": {
-    "typescript": "^5"
+    "typescript": "^5.8.2"
   },
   "scripts": {}
 }
