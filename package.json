@@ -3,8 +3,8 @@
   "type": "module",
   "private": true,
   "devDependencies": {
-    "@playwright/test": "^1.51.1",
-    "@types/bun": "^1.2.8"
+    "@playwright/test": "^1.54.2",
+    "@types/bun": "^1.2.20"
   },
   "peerDependencies": {
     "typescript": "^5.8.2"
