@@ -3,82 +3,82 @@
  * Simple web application for demonstrating Playwright parameterized testing
  */
 
-const PORT = process.env.PORT || 3000;
-const ENV = process.env.NODE_ENV || 'development';
+const PORT = process.env.PORT || 3000
+const ENV = process.env.NODE_ENV || 'development'
 
 // Simple user database (in-memory for demo)
-const users = new Map<string, { name: string; tier: 'free' | 'paid'; password: string }>();
+const users = new Map<string, { name: string; tier: 'free' | 'paid'; password: string }>()
 
 // Initialize demo users
-users.set('user@free.com', { name: 'Free User', tier: 'free', password: 'password123' });
-users.set('user@paid.com', { name: 'Paid User', tier: 'paid', password: 'password123' });
+users.set('user@free.com', { name: 'Free User', tier: 'free', password: 'password123' })
+users.set('user@paid.com', { name: 'Paid User', tier: 'paid', password: 'password123' })
 
-const server = Bun.serve({
+const _server = Bun.serve({
   port: PORT,
   async fetch(req) {
-    const url = new URL(req.url);
+    const url = new URL(req.url)
 
     // Serve HTML pages based on route
     if (url.pathname === '/' || url.pathname === '/login') {
       return new Response(getLoginPage(), {
         headers: { 'Content-Type': 'text/html' },
-      });
+      })
     }
 
     if (url.pathname === '/dashboard') {
       // Check for user cookie/session
-      const cookies = req.headers.get('Cookie') || '';
-      const userEmail = cookies.match(/user=([^;]+)/)?.[1];
+      const cookies = req.headers.get('Cookie') || ''
+      const userEmail = cookies.match(/user=([^;]+)/)?.[1]
 
       if (!userEmail) {
-        return new Response('Unauthorized', { status: 401 });
+        return new Response('Unauthorized', { status: 401 })
       }
 
-      const user = users.get(decodeURIComponent(userEmail));
+      const user = users.get(decodeURIComponent(userEmail))
       if (!user) {
-        return new Response('User not found', { status: 404 });
+        return new Response('User not found', { status: 404 })
       }
 
       return new Response(getDashboardPage(user), {
         headers: { 'Content-Type': 'text/html' },
-      });
+      })
     }
 
     // Handle login POST
     if (url.pathname === '/api/login' && req.method === 'POST') {
-      const body = await req.json();
-      const { email, password } = body;
+      const body = await req.json()
+      const { email, password } = body
 
-      const user = users.get(email);
+      const user = users.get(email)
       if (user && user.password === password) {
         return new Response(JSON.stringify({ success: true }), {
           headers: {
             'Content-Type': 'application/json',
             'Set-Cookie': `user=${encodeURIComponent(email)}; Path=/; HttpOnly`,
           },
-        });
+        })
       }
 
       return new Response(JSON.stringify({ success: false, error: 'Invalid credentials' }), {
         status: 401,
         headers: { 'Content-Type': 'application/json' },
-      });
+      })
     }
 
     // Health check endpoint
     if (url.pathname === '/health') {
       return new Response(JSON.stringify({ status: 'ok', environment: ENV }), {
         headers: { 'Content-Type': 'application/json' },
-      });
+      })
     }
 
-    return new Response('Not Found', { status: 404 });
+    return new Response('Not Found', { status: 404 })
   },
-});
+})
 
-console.log(`🚀 Demo SUT running on http://localhost:${PORT}`);
-console.log(`📊 Environment: ${ENV}`);
-console.log(`👤 Test users: user@free.com, user@paid.com (password: password123)`);
+console.log(`🚀 Demo SUT running on http://localhost:${PORT}`)
+console.log(`📊 Environment: ${ENV}`)
+console.log('👤 Test users: user@free.com, user@paid.com (password: password123)')
 
 function getLoginPage(): string {
   return `<!DOCTYPE html>
@@ -132,7 +132,7 @@ function getLoginPage(): string {
     });
   </script>
 </body>
-</html>`;
+</html>`
 }
 
 function getDashboardPage(user: { name: string; tier: 'free' | 'paid' }): string {
@@ -176,5 +176,5 @@ function getDashboardPage(user: { name: string; tier: 'free' | 'paid' }): string
 
   <p><a href="/login">Logout</a></p>
 </body>
-</html>`;
+</html>`
 }
