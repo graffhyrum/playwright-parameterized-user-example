@@ -1,4 +1,5 @@
 import { spawn, type Subprocess } from 'bun';
+import { resolve, dirname } from 'path';
 
 export type Environment = 'production' | 'staging' | 'development';
 
@@ -26,9 +27,15 @@ class ProcessManager {
     const port = portMap[env];
 
     try {
+      // Use current Bun executable path
+      const bunExe = process.execPath;
+
+      // Resolve demo-app directory relative to dashboard
+      const demoAppDir = resolve(dirname(import.meta.dir), '..', 'demo-app');
+
       const proc = spawn({
-        cmd: ['bun', 'run', 'src/index.ts'],
-        cwd: '/home/user/playwright-parameterized-user-example/demo-app',
+        cmd: [bunExe, 'run', 'src/index.ts'],
+        cwd: demoAppDir,
         env: {
           ...process.env,
           PORT: port.toString(),

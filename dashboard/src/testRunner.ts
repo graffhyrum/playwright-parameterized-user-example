@@ -1,5 +1,6 @@
 import { spawn, type Subprocess } from 'bun';
 import { existsSync } from 'fs';
+import { resolve, dirname, join } from 'path';
 
 interface TestRun {
   process: Subprocess | null;
@@ -19,16 +20,21 @@ class TestRunner {
       return { success: false, message: 'Tests are already running' };
     }
 
-    const args = ['bunx', 'playwright', 'test'];
+    // Use current Bun executable path
+    const bunExe = process.execPath;
+    const args = [bunExe, 'x', 'playwright', 'test'];
 
     if (project) {
       args.push('--project', project);
     }
 
+    // Resolve e2e directory relative to dashboard
+    const e2eDir = resolve(dirname(import.meta.dir), '..', 'e2e');
+
     try {
       const proc = spawn({
         cmd: args,
-        cwd: '/home/user/playwright-parameterized-user-example/e2e',
+        cwd: e2eDir,
         env: {
           ...process.env,
           FORCE_COLOR: '1', // Enable colored output
@@ -119,11 +125,13 @@ class TestRunner {
   }
 
   hasReport(): boolean {
-    return existsSync('/home/user/playwright-parameterized-user-example/e2e/playwright-report/index.html');
+    const e2eDir = resolve(dirname(import.meta.dir), '..', 'e2e');
+    return existsSync(join(e2eDir, 'playwright-report', 'index.html'));
   }
 
   getReportPath(): string {
-    return '/home/user/playwright-parameterized-user-example/e2e/playwright-report';
+    const e2eDir = resolve(dirname(import.meta.dir), '..', 'e2e');
+    return join(e2eDir, 'playwright-report');
   }
 
   private addLog(line: string) {
