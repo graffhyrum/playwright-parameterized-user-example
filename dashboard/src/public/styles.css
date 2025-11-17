@@ -190,6 +190,24 @@ details[open] > .log-header {
 }
 
 /* Test Runner */
+.info-notice {
+  background: #e3f2fd;
+  border: 1px solid #2196f3;
+  border-left: 4px solid #2196f3;
+  border-radius: 4px;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+  color: #0d47a1;
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.info-notice strong {
+  display: block;
+  margin-bottom: 0.25rem;
+  color: #1565c0;
+}
+
 .test-controls {
   background: var(--card-bg);
   border: 1px solid var(--border-color);

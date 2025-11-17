@@ -37,7 +37,7 @@ class TestRunner {
         cwd: e2eDir,
         env: {
           ...process.env,
-          FORCE_COLOR: '1', // Enable colored output
+          FORCE_COLOR: '0', // Disable colored output to avoid ANSI codes
         },
         stdout: 'pipe',
         stderr: 'pipe',
@@ -56,12 +56,12 @@ class TestRunner {
 
       // Capture stdout
       this.readStream(proc.stdout, (line) => {
-        this.addLog(line);
+        this.addLog(this.stripAnsi(line));
       });
 
       // Capture stderr
       this.readStream(proc.stderr, (line) => {
-        this.addLog(`[ERROR] ${line}`);
+        this.addLog(`[ERROR] ${this.stripAnsi(line)}`);
       });
 
       // Wait for process to complete
@@ -143,6 +143,15 @@ class TestRunner {
         this.currentRun.logs.shift();
       }
     }
+  }
+
+  private stripAnsi(str: string): string {
+    // Remove ANSI escape codes
+    // This regex matches common ANSI escape sequences
+    return str.replace(
+      /[\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZcf-nqry=><]/g,
+      ''
+    );
   }
 
   private async readStream(stream: ReadableStream, callback: (line: string) => void) {
