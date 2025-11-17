@@ -43,10 +43,10 @@
               Stop
             </button>
           </div>
-          <div class="log-container">
-            <div class="log-header">Logs</div>
+          <details class="log-container">
+            <summary class="log-header">Logs</summary>
             <pre id="logs-production" class="log-output"></pre>
-          </div>
+          </details>
         </div>
 
         <!-- Staging Environment -->
@@ -71,10 +71,10 @@
               Stop
             </button>
           </div>
-          <div class="log-container">
-            <div class="log-header">Logs</div>
+          <details class="log-container">
+            <summary class="log-header">Logs</summary>
             <pre id="logs-staging" class="log-output"></pre>
-          </div>
+          </details>
         </div>
 
         <!-- Development Environment -->
@@ -99,10 +99,10 @@
               Stop
             </button>
           </div>
-          <div class="log-container">
-            <div class="log-header">Logs</div>
+          <details class="log-container">
+            <summary class="log-header">Logs</summary>
             <pre id="logs-development" class="log-output"></pre>
-          </div>
+          </details>
         </div>
       </div>
     </div>
@@ -143,10 +143,10 @@
         </div>
 
         <!-- Test Output -->
-        <div class="test-output-section">
-          <div class="log-header">Test Output</div>
+        <details class="test-output-section" open>
+          <summary class="log-header">Test Output</summary>
           <pre id="test-logs" class="test-output"></pre>
-        </div>
+        </details>
 
         <!-- Playwright Report -->
         <div class="report-section">

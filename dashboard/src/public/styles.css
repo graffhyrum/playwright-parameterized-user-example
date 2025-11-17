@@ -144,7 +144,34 @@ header p {
   padding: 0.5rem 1rem;
   font-size: 0.875rem;
   font-weight: 600;
+  border-radius: 4px;
+  cursor: pointer;
+  list-style: none;
+  user-select: none;
+  transition: background 0.2s;
+}
+
+.log-header::-webkit-details-marker {
+  display: none;
+}
+
+.log-header::before {
+  content: '▶';
+  display: inline-block;
+  margin-right: 0.5rem;
+  transition: transform 0.2s;
+}
+
+details[open] > .log-header::before {
+  transform: rotate(90deg);
+}
+
+details[open] > .log-header {
   border-radius: 4px 4px 0 0;
+}
+
+.log-header:hover {
+  background: #2d2d2d;
 }
 
 .log-output {
@@ -159,6 +186,7 @@ header p {
   border-radius: 0 0 4px 4px;
   white-space: pre-wrap;
   word-wrap: break-word;
+  margin: 0;
 }
 
 /* Test Runner */
@@ -222,6 +250,14 @@ header p {
   margin-bottom: 1.5rem;
 }
 
+.test-output-section > .log-header {
+  border-radius: 4px;
+}
+
+.test-output-section[open] > .log-header {
+  border-radius: 4px 4px 0 0;
+}
+
 .test-output {
   background: var(--log-bg);
   color: var(--log-text);
@@ -234,6 +270,7 @@ header p {
   border-radius: 0 0 4px 4px;
   white-space: pre-wrap;
   word-wrap: break-word;
+  margin: 0;
 }
 
 .report-section {
