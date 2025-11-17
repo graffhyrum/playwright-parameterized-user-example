@@ -12,8 +12,7 @@ export default defineConfig({
   workers: process.env.CI ? 1 : undefined,
   reporter: [['html', {open: 'never'}]],
   use: {
-    // baseURL: 'http://127.0.0.1:3000',
-    trace: 'on-first-retry',
+    trace: 'on',
   },
 
   /* Configure projects for major browsers */

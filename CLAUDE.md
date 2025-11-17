@@ -4,9 +4,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Monorepo Structure
 
-This is a monorepo with two packages:
+This is a monorepo with three packages:
 - **`e2e/`** - Playwright test framework with parameterized testing
 - **`demo-app/`** - Demo System Under Test (SUT) web application
+- **`dashboard/`** - Control panel SPA for managing demo-app and tests
 
 ## Commands
 
@@ -16,6 +17,14 @@ This is a monorepo with two packages:
 ```bash
 bun install
 ```
+
+### Dashboard
+
+**Start dashboard (manages demo-app and tests):**
+```bash
+bun run dashboard
+```
+Then open `http://localhost:4000`
 
 ### Demo Application
 
@@ -86,6 +95,13 @@ bun test:report
 │   ├── src/
 │   │   └── index.ts       # Bun web server
 │   └── package.json
+├── dashboard/             # Control panel SPA
+│   ├── src/
+│   │   ├── index.ts       # Bun server
+│   │   ├── processManager.ts
+│   │   ├── testRunner.ts
+│   │   └── public/        # HTMX-based UI
+│   └── package.json
 └── package.json           # Workspace root
 ```
 
@@ -139,6 +155,22 @@ The demo SUT (`demo-app/src/index.ts`) is a Bun-based web server that provides:
 - Staging: 3001
 - Development: 3002
 
+### Dashboard
+
+The dashboard (`dashboard/src/index.ts`) is a Bun server with HTMX-based SPA providing:
+- Start/stop demo-app instances for each environment
+- Real-time log streaming via Server-Sent Events (SSE)
+- Playwright test execution with live output
+- Embedded HTML report viewer
+- No heavy JS framework dependencies (uses HTMX)
+
+**Dashboard port:** 4000
+
+**Key components:**
+- `processManager.ts` - demo-app lifecycle (start/stop/logs/status)
+- `testRunner.ts` - Playwright execution manager
+- SSE updates every 500ms with real-time status
+
 ## Key Files
 
 ### E2E Framework
@@ -152,6 +184,12 @@ The demo SUT (`demo-app/src/index.ts`) is a Bun-based web server that provides:
 ### Demo Application
 - `demo-app/src/index.ts` - web server with authentication and tier-based features
 - `demo-app/package.json` - demo app dependencies and scripts
+
+### Dashboard
+- `dashboard/src/index.ts` - Bun server with API endpoints and SSE
+- `dashboard/src/processManager.ts` - demo-app process lifecycle management
+- `dashboard/src/testRunner.ts` - Playwright test execution manager
+- `dashboard/src/public/` - HTMX-based SPA with real-time updates
 
 ### Workspace Root
 - `package.json` - monorepo workspace configuration with convenience scripts

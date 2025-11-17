@@ -11,12 +11,60 @@ interface TestRun {
   exitCode?: number;
 }
 
-class TestRunner {
-  private currentRun: TestRun | null = null;
-  private maxLogLines = 2000;
+const buildTestRunner = () => {
+  let currentRun: TestRun | null = null;
+  const maxLogLines = 2000;
 
-  async run(project?: string): Promise<{ success: boolean; message: string }> {
-    if (this.currentRun?.running) {
+  const addLog = (line: string) => {
+    if (currentRun) {
+      currentRun.logs.push(line);
+
+      // Keep only last N lines
+      if (currentRun.logs.length > maxLogLines) {
+        currentRun.logs.shift();
+      }
+    }
+  };
+
+  const stripAnsi = (str: string): string => {
+    // Remove ANSI escape codes
+    // This regex matches common ANSI escape sequences
+    return str.replace(
+      /[\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZcf-nqry=><]/g,
+      ''
+    );
+  };
+
+  const readStream = async (stream: ReadableStream, callback: (line: string) => void) => {
+    const reader = stream.getReader();
+    const decoder = new TextDecoder();
+    let buffer = '';
+
+    try {
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split('\n');
+        buffer = lines.pop() || '';
+
+        for (const line of lines) {
+          callback(line);
+        }
+      }
+
+      // Handle any remaining buffer
+      if (buffer) {
+        callback(buffer);
+      }
+    } catch (error) {
+      console.error('Error reading stream:', error);
+    }
+  };
+
+  const run = async (project?: string): Promise<{ success: boolean; message: string }> => {
+    if (currentRun?.running) {
       return { success: false, message: 'Tests are already running' };
     }
 
@@ -43,40 +91,40 @@ class TestRunner {
         stderr: 'pipe',
       });
 
-      this.currentRun = {
+      currentRun = {
         process: proc,
         logs: [],
         startTime: new Date(),
         running: true,
       };
 
-      this.addLog(`Starting Playwright tests${project ? ` for project: ${project}` : ''}...`);
-      this.addLog(`Command: ${args.join(' ')}`);
-      this.addLog('');
+      addLog(`Starting Playwright tests${project ? ` for project: ${project}` : ''}...`);
+      addLog(`Command: ${args.join(' ')}`);
+      addLog('');
 
       // Capture stdout
-      this.readStream(proc.stdout, (line) => {
-        this.addLog(this.stripAnsi(line));
+      void readStream(proc.stdout, (line) => {
+        addLog(stripAnsi(line));
       });
 
       // Capture stderr
-      this.readStream(proc.stderr, (line) => {
-        this.addLog(`[ERROR] ${this.stripAnsi(line)}`);
+      void readStream(proc.stderr, (line) => {
+        addLog(`[ERROR] ${stripAnsi(line)}`);
       });
 
       // Wait for process to complete
       proc.exited.then((exitCode) => {
-        if (this.currentRun) {
-          this.currentRun.running = false;
-          this.currentRun.endTime = new Date();
-          this.currentRun.exitCode = exitCode;
-          this.addLog('');
-          this.addLog(`Tests completed with exit code: ${exitCode}`);
+        if (currentRun) {
+          currentRun.running = false;
+          currentRun.endTime = new Date();
+          currentRun.exitCode = exitCode;
+          addLog('');
+          addLog(`Tests completed with exit code: ${exitCode}`);
 
           if (exitCode === 0) {
-            this.addLog('✓ All tests passed!');
+            addLog('✓ All tests passed!');
           } else {
-            this.addLog('✗ Some tests failed');
+            addLog('✗ Some tests failed');
           }
         }
       });
@@ -85,102 +133,63 @@ class TestRunner {
     } catch (error) {
       return { success: false, message: `Failed to start tests: ${error}` };
     }
-  }
+  };
 
-  stop(): { success: boolean; message: string } {
-    if (!this.currentRun?.running) {
+  const stop = (): { success: boolean; message: string } => {
+    if (!currentRun?.running) {
       return { success: false, message: 'No tests are currently running' };
     }
 
     try {
-      this.currentRun.process?.kill();
-      this.currentRun.running = false;
-      this.currentRun.endTime = new Date();
-      this.addLog('');
-      this.addLog('Tests stopped by user');
+      currentRun.process?.kill();
+      currentRun.running = false;
+      currentRun.endTime = new Date();
+      addLog('');
+      addLog('Tests stopped by user');
       return { success: true, message: 'Tests stopped' };
     } catch (error) {
       return { success: false, message: `Failed to stop tests: ${error}` };
     }
-  }
+  };
 
-  getStatus() {
-    if (!this.currentRun) {
+  const getStatus = () => {
+    if (!currentRun) {
       return { running: false };
     }
 
-    const duration = this.currentRun.endTime
-      ? this.currentRun.endTime.getTime() - this.currentRun.startTime.getTime()
-      : Date.now() - this.currentRun.startTime.getTime();
+    const duration = currentRun.endTime
+      ? currentRun.endTime.getTime() - currentRun.startTime.getTime()
+      : Date.now() - currentRun.startTime.getTime();
 
     return {
-      running: this.currentRun.running,
+      running: currentRun.running,
       duration: Math.floor(duration / 1000),
-      exitCode: this.currentRun.exitCode,
+      exitCode: currentRun.exitCode,
     };
-  }
+  };
 
-  getLogs(): string[] {
-    return this.currentRun ? [...this.currentRun.logs] : [];
-  }
+  const getLogs = (): string[] => {
+    return currentRun ? [...currentRun.logs] : [];
+  };
 
-  hasReport(): boolean {
+  const hasReport = (): boolean => {
     const e2eDir = resolve(dirname(import.meta.dir), '..', 'e2e');
     return existsSync(join(e2eDir, 'playwright-report', 'index.html'));
-  }
+  };
 
-  getReportPath(): string {
+  const getReportPath = (): string => {
     const e2eDir = resolve(dirname(import.meta.dir), '..', 'e2e');
     return join(e2eDir, 'playwright-report');
-  }
+  };
 
-  private addLog(line: string) {
-    if (this.currentRun) {
-      this.currentRun.logs.push(line);
+  return {
+    run,
+    stop,
+    getStatus,
+    getLogs,
+    hasReport,
+    getReportPath,
+  };
+};
 
-      // Keep only last N lines
-      if (this.currentRun.logs.length > this.maxLogLines) {
-        this.currentRun.logs.shift();
-      }
-    }
-  }
-
-  private stripAnsi(str: string): string {
-    // Remove ANSI escape codes
-    // This regex matches common ANSI escape sequences
-    return str.replace(
-      /[\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZcf-nqry=><]/g,
-      ''
-    );
-  }
-
-  private async readStream(stream: ReadableStream, callback: (line: string) => void) {
-    const reader = stream.getReader();
-    const decoder = new TextDecoder();
-    let buffer = '';
-
-    try {
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-
-        buffer += decoder.decode(value, { stream: true });
-        const lines = buffer.split('\n');
-        buffer = lines.pop() || '';
-
-        for (const line of lines) {
-          callback(line);
-        }
-      }
-
-      // Handle any remaining buffer
-      if (buffer) {
-        callback(buffer);
-      }
-    } catch (error) {
-      console.error('Error reading stream:', error);
-    }
-  }
-}
-
-export const testRunner = new TestRunner();
+export const testRunner = buildTestRunner();

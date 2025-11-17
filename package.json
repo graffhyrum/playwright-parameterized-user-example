@@ -10,7 +10,7 @@
   ],
   "scripts": {
     "install:all": "bun install",
-    "dashboard": "cd dashboard && bun run dev",
+    "dashboard": "cd dashboard && bun --hot run dev",
     "dev:app": "cd demo-app && bun run dev",
     "dev:app:production": "cd demo-app && PORT=3000 NODE_ENV=production bun run dev",
     "dev:app:staging": "cd demo-app && PORT=3001 NODE_ENV=staging bun run dev",
@@ -25,5 +25,8 @@
   },
   "peerDependencies": {
     "typescript": "^5.8.2"
+  },
+  "dependencies": {
+    "arktype": "^2.1.27"
   }
 }

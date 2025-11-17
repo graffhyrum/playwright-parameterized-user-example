@@ -39,3 +39,4 @@ report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
 /blob-report/
 /playwright/.cache/
 e2e/test-results/
+/e2e/playwright-report/

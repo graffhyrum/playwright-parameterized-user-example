@@ -1,7 +1,15 @@
 import { spawn, type Subprocess } from 'bun';
 import { resolve, dirname } from 'path';
+import {type} from "arktype";
 
-export type Environment = 'production' | 'staging' | 'development';
+const ENVIRONMENTS = [
+    'production',
+    'staging',
+    'development'
+] as const;
+export const EnvSchema = type.enumerated(...ENVIRONMENTS)
+
+export type Environment = typeof EnvSchema.infer;
 
 interface ProcessInfo {
   process: Subprocess;
@@ -55,12 +63,12 @@ class ProcessManager {
       this.processes.set(env, processInfo);
 
       // Capture stdout
-      this.readStream(proc.stdout, (line) => {
+      void this.readStream(proc.stdout, (line) => {
         this.addLog(env, `[stdout] ${line}`);
       });
 
       // Capture stderr
-      this.readStream(proc.stderr, (line) => {
+      void this.readStream(proc.stderr, (line) => {
         this.addLog(env, `[stderr] ${line}`);
       });
 
