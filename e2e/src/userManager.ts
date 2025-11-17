@@ -6,16 +6,18 @@ export function getUserManager(
 ) {
     return {
         create: async (): Promise<User> => {
-            // Create the user
+            // Return demo users that exist in the demo app
+            const email = tier === 'free' ? 'user@free.com' : 'user@paid.com';
+
             return Promise.resolve({
                 tier,
                 env: thisEnvironment,
-                username: 'username',
-                password: 'password'
+                username: email,
+                password: 'password123'
             })
         },
         delete: async (user: User) => {
-            // Delete the user
+            // Demo users are persistent, no cleanup needed
         },
     };
 }
