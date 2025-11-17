@@ -1,8 +1,6 @@
 {
-  "$schema": "https://biomejs.dev/schemas/1.9.4/schema.json",
-  "organizeImports": {
-    "enabled": true
-  },
+  "$schema": "https://biomejs.dev/schemas/2.0.6/schema.json",
+  "assist": { "actions": { "source": { "organizeImports": "on" } } },
   "linter": {
     "enabled": true,
     "rules": {
@@ -16,7 +14,17 @@
       },
       "style": {
         "noNonNullAssertion": "off",
-        "useTemplate": "off"
+        "useTemplate": "off",
+        "noParameterAssign": "error",
+        "useAsConstAssertion": "error",
+        "useDefaultParameterLast": "error",
+        "useEnumInitializers": "error",
+        "useSelfClosingElements": "error",
+        "useSingleVarDeclarator": "error",
+        "noUnusedTemplateLiteral": "error",
+        "useNumberNamespace": "error",
+        "noInferrableTypes": "error",
+        "noUselessElse": "error"
       },
       "suspicious": {
         "noControlCharactersInRegex": "off",
@@ -47,17 +55,21 @@
     }
   },
   "files": {
-    "include": ["**/*.js", "**/*.ts", "**/*.jsx", "**/*.tsx", "**/*.json"],
-    "ignore": [
-      "node_modules/**",
-      "dist/**",
-      "build/**",
-      ".next/**",
-      "coverage/**",
-      "**/*.d.ts",
-      "**/playwright-report/**",
-      "**/test-results/**",
-      "**/playwright/.cache/**"
+    "includes": [
+      "**/*.js",
+      "**/*.ts",
+      "**/*.jsx",
+      "**/*.tsx",
+      "**/*.json",
+      "!**/node_modules/**",
+      "!**/dist/**",
+      "!**/build/**",
+      "!**/.next/**",
+      "!**/coverage/**",
+      "!**/*.d.ts",
+      "!**/playwright-report/**",
+      "!**/test-results/**",
+      "!**/playwright/.cache/**"
     ]
   }
 }

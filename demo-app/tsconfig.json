@@ -1,4 +1,5 @@
 {
+  "typescript": "@typescript/native-preview",
   "compilerOptions": {
     "target": "ESNext",
     "module": "ESNext",

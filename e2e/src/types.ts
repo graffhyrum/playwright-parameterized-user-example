@@ -1,8 +1,9 @@
+import { type Environment, environments } from '@monorepo/utils'
 import type { Page } from '@playwright/test'
 import type { LoginPageObject } from './POMs/loginPage.ts'
 
-export const testableEnvironments = ['production', 'staging', 'development'] as const
-export type TestableEnvironment = (typeof testableEnvironments)[number]
+export const testableEnvironments = environments
+export type TestableEnvironment = Environment
 export const userTiers = ['free', 'paid'] as const
 export type UserTier = (typeof userTiers)[number]
 export type User = {

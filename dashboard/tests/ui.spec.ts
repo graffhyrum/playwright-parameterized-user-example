@@ -1,96 +1,118 @@
-import { expect, test } from '@playwright/test'
-import { assertStatusBadge, cleanupAll, getDashboardUrl, waitForDashboardReady } from './setup'
+import { expect } from '@playwright/test'
+import { dashboardTest } from '../src/fixtures.ts'
+import type { DashboardFixture } from '../src/types.ts'
 
-const DASHBOARD_URL = getDashboardUrl()
+dashboardTest.describe('Dashboard UI Tests', () => {
+  dashboardTest.describe('Page Load', () => {
+    dashboardTest('should load dashboard with correct title', async ({ dashboard }) => {
+      await expect(dashboard.page).toHaveTitle(/Playwright Test Dashboard/)
+    })
 
-test.describe('Dashboard UI Tests', () => {
-  test.beforeAll(async ({ request }) => {
-    await waitForDashboardReady(request)
+    dashboardTest('should display main layout elements', async ({ dashboard }) => {
+      await expect(dashboard.page.locator('h1')).toContainText('Playwright Test Dashboard')
+      await expect(dashboard.page.locator('.header-nav')).toBeVisible()
+      await expect(dashboard.page.locator('.tabs-container')).toBeVisible()
+    })
+
+    dashboardTest('should show tab navigation', async ({ dashboard }) => {
+      await expect(dashboard.page.locator('[data-tab="demo-apps"]')).toBeVisible()
+      await expect(dashboard.page.locator('[data-tab="tests"]')).toBeVisible()
+      await expect(dashboard.page.locator('[data-tab="reports"]')).toBeVisible()
+    })
+
+    dashboardTest('should default to Demo Apps tab', async ({ dashboard }) => {
+      await expect(dashboard.page.locator('#demo-apps')).toHaveClass(/active/)
+      await expect(dashboard.page.locator('[data-tab="demo-apps"]')).toHaveClass(/active/)
+    })
+
+    dashboardTest(
+      'should show all three environment cards in Demo Apps tab',
+      async ({ dashboard }) => {
+        await dashboard.POMs.demoAppsPage.switchToTab()
+        await expect(dashboard.page.locator('h3:has-text("Production")')).toBeVisible()
+        await expect(dashboard.page.locator('h3:has-text("Staging")')).toBeVisible()
+        await expect(dashboard.page.locator('h3:has-text("Development")')).toBeVisible()
+      }
+    )
+
+    dashboardTest('should show port badges in Demo Apps tab', async ({ dashboard }) => {
+      await dashboard.POMs.demoAppsPage.switchToTab()
+      await expect(dashboard.page.locator('text=Port 3000')).toBeVisible()
+      await expect(dashboard.page.locator('text=Port 3001')).toBeVisible()
+      await expect(dashboard.page.locator('text=Port 3002')).toBeVisible()
+    })
+
+    dashboardTest(
+      'should have test runner controls visible in Tests & Status tab',
+      async ({ dashboard }) => {
+        await dashboard.POMs.testsPage.switchToTab()
+        await expect(dashboard.page.locator('#run-tests-btn')).toBeVisible()
+        await expect(dashboard.page.locator('#stop-tests-btn')).toBeVisible()
+        await expect(dashboard.page.locator('#test-project')).toBeVisible()
+      }
+    )
   })
 
-  test.beforeEach(async ({ page, request }) => {
-    await cleanupAll(request)
-    await page.goto(DASHBOARD_URL)
-  })
-
-  test.afterEach(async ({ request }) => {
-    await cleanupAll(request)
-  })
-
-  test.describe('Page Load', () => {
-    test('should load dashboard with correct title', async ({ page }) => {
-      await expect(page).toHaveTitle(/Playwright Test Dashboard/)
+  dashboardTest.describe('Tab Navigation', () => {
+    dashboardTest('should switch to Demo Apps tab', async ({ dashboard }) => {
+      await dashboard.POMs.demoAppsPage.switchToTab()
+      await expect(dashboard.page.locator('#demo-apps')).toHaveClass(/active/)
+      await expect(dashboard.page.locator('#tests')).not.toHaveClass(/active/)
+      await expect(dashboard.page.locator('#reports')).not.toHaveClass(/active/)
     })
 
-    test('should display main layout elements', async ({ page }) => {
-      await expect(page.locator('h1')).toContainText('Playwright Test Dashboard')
-      await expect(page.locator('.left-panel')).toBeVisible()
-      await expect(page.locator('.right-panel')).toBeVisible()
+    dashboardTest('should switch to Tests & Status tab', async ({ dashboard }) => {
+      await dashboard.POMs.testsPage.switchToTab()
+      await expect(dashboard.page.locator('#tests')).toHaveClass(/active/)
+      await expect(dashboard.page.locator('#demo-apps')).not.toHaveClass(/active/)
+      await expect(dashboard.page.locator('#reports')).not.toHaveClass(/active/)
     })
 
-    test('should show all three environment cards', async ({ page }) => {
-      await expect(page.locator('text=Production')).toBeVisible()
-      await expect(page.locator('text=Staging')).toBeVisible()
-      await expect(page.locator('text=Development')).toBeVisible()
+    dashboardTest('should switch to Reports tab', async ({ dashboard }) => {
+      await dashboard.POMs.reportsPage.switchToTab()
+      await expect(dashboard.page.locator('#reports')).toHaveClass(/active/)
+      await expect(dashboard.page.locator('#demo-apps')).not.toHaveClass(/active/)
+      await expect(dashboard.page.locator('#tests')).not.toHaveClass(/active/)
     })
 
-    test('should show port badges', async ({ page }) => {
-      await expect(page.locator('text=Port 3000')).toBeVisible()
-      await expect(page.locator('text=Port 3001')).toBeVisible()
-      await expect(page.locator('text=Port 3002')).toBeVisible()
-    })
+    dashboardTest('should maintain tab state when switching', async ({ dashboard }) => {
+      // Switch to tests tab
+      await dashboard.POMs.testsPage.switchToTab()
+      await expect(dashboard.page.locator('#tests')).toHaveClass(/active/)
 
-    test('should have test runner controls visible', async ({ page }) => {
-      await expect(page.locator('#run-tests-btn')).toBeVisible()
-      await expect(page.locator('#stop-tests-btn')).toBeVisible()
-      await expect(page.locator('#test-project')).toBeVisible()
+      // Switch to reports tab
+      await dashboard.POMs.reportsPage.switchToTab()
+      await expect(dashboard.page.locator('#reports')).toHaveClass(/active/)
+
+      // Switch back to tests tab
+      await dashboard.POMs.testsPage.switchToTab()
+      await expect(dashboard.page.locator('#tests')).toHaveClass(/active/)
     })
   })
 
-  test.describe('Demo App Start/Stop', () => {
-    test('should start production app via UI', async ({ page }) => {
-      await page.click('#start-btn-production')
-
-      // Wait for status to update to running
-      await expect(page.locator('#status-production')).toContainText(/Running/, { timeout: 10000 })
-
-      // Verify buttons state
-      await expect(page.locator('#start-btn-production')).toBeDisabled()
-      await expect(page.locator('#stop-btn-production')).toBeEnabled()
+  dashboardTest.describe('Demo App Start/Stop', () => {
+    dashboardTest('should start production app via UI', async ({ dashboard }) => {
+      await dashboard.POMs.demoAppsPage.startApp('production')
     })
 
-    test('should stop production app via UI', async ({ page }) => {
-      // Start first
-      await page.click('#start-btn-production')
-      await expect(page.locator('#status-production')).toContainText(/Running/, { timeout: 10000 })
-
-      // Stop
-      await page.click('#stop-btn-production')
-      await expect(page.locator('#status-production')).toContainText(/Stopped/, { timeout: 5000 })
-
-      // Verify buttons state
-      await expect(page.locator('#start-btn-production')).toBeEnabled()
-      await expect(page.locator('#stop-btn-production')).toBeDisabled()
+    dashboardTest('should stop production app via UI', async ({ dashboard }) => {
+      await dashboard.POMs.demoAppsPage.startApp('production')
+      await dashboard.POMs.demoAppsPage.stopApp('production')
     })
 
-    test('should start staging app via UI', async ({ page }) => {
-      await page.click('#start-btn-staging')
-      await expect(page.locator('#status-staging')).toContainText(/Running/, { timeout: 10000 })
-      await expect(page.locator('#start-btn-staging')).toBeDisabled()
-      await expect(page.locator('#stop-btn-staging')).toBeEnabled()
+    dashboardTest('should start staging app via UI', async ({ dashboard }) => {
+      await dashboard.POMs.demoAppsPage.startApp('staging')
     })
 
-    test('should start development app via UI', async ({ page }) => {
-      await page.click('#start-btn-development')
-      await expect(page.locator('#status-development')).toContainText(/Running/, { timeout: 10000 })
-      await expect(page.locator('#start-btn-development')).toBeDisabled()
-      await expect(page.locator('#stop-btn-development')).toBeEnabled()
+    dashboardTest('should start development app via UI', async ({ dashboard }) => {
+      await dashboard.POMs.demoAppsPage.startApp('development')
     })
   })
 
-  test.describe('Log Viewer', () => {
-    test('should expand and collapse log details', async ({ page }) => {
-      const details = page.locator('.environment-card').first().locator('details')
+  dashboardTest.describe('Log Viewer', () => {
+    dashboardTest('should expand and collapse log details', async ({ dashboard }) => {
+      await dashboard.POMs.demoAppsPage.switchToTab()
+      const details = dashboard.page.locator('.environment-card').first().locator('details')
 
       // Initially collapsed
       await expect(details).not.toHaveAttribute('open')
@@ -104,122 +126,100 @@ test.describe('Dashboard UI Tests', () => {
       await expect(details).not.toHaveAttribute('open')
     })
 
-    test('should display logs after starting app', async ({ page }) => {
-      await page.click('#start-btn-production')
-      await expect(page.locator('#status-production')).toContainText(/Running/, { timeout: 10000 })
+    dashboardTest('should display logs after starting app', async ({ dashboard }) => {
+      await dashboard.POMs.demoAppsPage.startApp('production')
 
       // Wait a bit for logs to appear
-      await page.waitForTimeout(2000)
+      await dashboard.page.waitForTimeout(2000)
 
       // Expand logs
-      const details = page.locator('.environment-card').first().locator('details')
-      await details.locator('summary').click()
+      await dashboard.POMs.demoAppsPage.expandLogs('production')
 
-      const logs = page.locator('#logs-production')
-      await expect(logs).not.toHaveText('No logs yet...')
+      const logs = await dashboard.POMs.demoAppsPage.getLogs('production')
+      expect(logs).not.toBe('No logs yet...')
     })
   })
 
-  test.describe('Test Runner UI', () => {
-    test('should run tests via UI button', async ({ page }) => {
+  dashboardTest.describe('Test Runner UI', () => {
+    dashboardTest('should run tests via UI button', async ({ dashboard }) => {
       // Start production app first
-      await page.click('#start-btn-production')
-      await expect(page.locator('#status-production')).toContainText(/Running/, { timeout: 10000 })
+      await dashboard.POMs.demoAppsPage.startApp('production')
 
-      // Run tests
-      await page.click('#run-tests-btn')
-
-      // Wait for running status
-      await expect(page.locator('#test-status')).toContainText(/Running/, { timeout: 5000 })
-
-      // Verify buttons state
-      await expect(page.locator('#run-tests-btn')).toBeDisabled()
-      await expect(page.locator('#stop-tests-btn')).toBeEnabled()
+      // Switch to tests tab and run tests
+      await dashboard.POMs.testsPage.runTests()
     })
 
-    test('should show test output in logs area', async ({ page }) => {
-      await page.click('#start-btn-production')
-      await expect(page.locator('#status-production')).toContainText(/Running/, { timeout: 10000 })
+    dashboardTest('should show test output in logs area', async ({ dashboard }) => {
+      // Start production app first
+      await dashboard.POMs.demoAppsPage.startApp('production')
 
-      await page.click('#run-tests-btn')
+      // Switch to tests tab and run tests
+      await dashboard.POMs.testsPage.runTests()
 
       // Wait for test output to appear
-      await page.waitForTimeout(3000)
+      await dashboard.page.waitForTimeout(3000)
 
-      const testLogs = page.locator('#test-logs')
-      await expect(testLogs).not.toHaveText('No test output yet...')
+      const testOutput = await dashboard.POMs.testsPage.getTestOutput()
+      expect(testOutput).not.toBe('No test output yet...')
     })
 
-    test('should accept project filter input', async ({ page }) => {
-      const projectInput = page.locator('#test-project')
-      await projectInput.fill('chromium')
-      await expect(projectInput).toHaveValue('chromium')
+    dashboardTest('should accept project filter input', async ({ dashboard }) => {
+      await dashboard.POMs.testsPage.setProjectFilter('chromium')
+      const filterValue = await dashboard.POMs.testsPage.getProjectFilter()
+      expect(filterValue).toBe('chromium')
     })
 
-    test('should stop tests via UI button', async ({ page }) => {
+    dashboardTest('should stop tests via UI button', async ({ dashboard }) => {
       // Start app and tests
-      await page.click('#start-btn-production')
-      await expect(page.locator('#status-production')).toContainText(/Running/, { timeout: 10000 })
-
-      await page.click('#run-tests-btn')
-      await expect(page.locator('#test-status')).toContainText(/Running/, { timeout: 5000 })
+      await dashboard.POMs.demoAppsPage.startApp('production')
+      await dashboard.POMs.testsPage.runTests()
 
       // Stop tests
-      await page.click('#stop-tests-btn')
-
-      // Wait for stopped state
-      await page.waitForTimeout(2000)
-
-      // Verify buttons state
-      await expect(page.locator('#run-tests-btn')).toBeEnabled()
-      await expect(page.locator('#stop-tests-btn')).toBeDisabled()
+      await dashboard.POMs.testsPage.stopTests()
     })
   })
 
-  test.describe('Report Viewer', () => {
-    test('should show report placeholder initially', async ({ page }) => {
-      const placeholder = page.locator('.report-placeholder')
+  dashboardTest.describe('Report Viewer', () => {
+    dashboardTest('should show report placeholder initially', async ({ dashboard }) => {
+      await dashboard.POMs.reportsPage.switchToTab()
+      const placeholder = dashboard.page.locator('.report-placeholder')
       await expect(placeholder).toBeVisible()
       await expect(placeholder).toContainText(/Run tests to generate a report/)
     })
 
-    test('should have refresh report button', async ({ page }) => {
-      await expect(page.locator('#refresh-report-btn')).toBeVisible()
-      await expect(page.locator('#refresh-report-btn')).toContainText(/Refresh/)
+    dashboardTest('should have refresh report button', async ({ dashboard }) => {
+      await dashboard.POMs.reportsPage.switchToTab()
+      await expect(dashboard.page.locator('#refresh-report-btn')).toBeVisible()
+      await expect(dashboard.page.locator('#refresh-report-btn')).toContainText(/Refresh/)
     })
 
-    test('should load report iframe after test run with report', async ({ page }) => {
+    dashboardTest('should load report iframe after test run with report', async ({ dashboard }) => {
+      await dashboard.POMs.reportsPage.switchToTab()
       // This test assumes there's already a report from previous runs
       // If not, it will just verify the refresh mechanism works
-      await page.click('#refresh-report-btn')
+      await dashboard.POMs.reportsPage.refreshReport()
 
       // Check if iframe appears (may not if no report exists)
-      const _iframe = page.locator('iframe.report-iframe')
+      const _iframe = dashboard.page.locator('iframe.report-iframe')
       // Just verify the click worked without error
-      await expect(page.locator('#report-container')).toBeVisible()
+      await expect(dashboard.page.locator('#report-container')).toBeVisible()
     })
   })
 
-  test.describe('Real-time Status Updates', () => {
-    test('should show uptime counter when app running', async ({ page }) => {
-      await page.click('#start-btn-production')
-
-      // Wait for running status
-      await expect(page.locator('#status-production')).toContainText(/Running/, { timeout: 10000 })
+  dashboardTest.describe('Real-time Status Updates', () => {
+    dashboardTest('should show uptime counter when app running', async ({ dashboard }) => {
+      await dashboard.POMs.demoAppsPage.startApp('production')
 
       // Verify uptime is displayed (format: "Running (Xs)")
-      await expect(page.locator('#status-production')).toContainText(/\d+s/)
+      await expect(dashboard.page.locator('#status-production')).toContainText(/\d+s/)
     })
 
-    test('should show test duration when running', async ({ page }) => {
-      await page.click('#start-btn-production')
-      await expect(page.locator('#status-production')).toContainText(/Running/, { timeout: 10000 })
-
-      await page.click('#run-tests-btn')
-      await expect(page.locator('#test-status')).toContainText(/Running/, { timeout: 5000 })
+    dashboardTest('should show test duration when running', async ({ dashboard }) => {
+      await dashboard.POMs.demoAppsPage.startApp('production')
+      await dashboard.POMs.testsPage.runTests()
 
       // Verify duration is displayed (format: "Running... (Xs)")
-      await expect(page.locator('#test-status')).toContainText(/\d+s/)
+      await expect(dashboard.page.locator('#test-status')).toContainText(/\d+s/)
     })
   })
 })

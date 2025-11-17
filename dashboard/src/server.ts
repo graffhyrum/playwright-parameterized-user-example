@@ -9,4 +9,5 @@ export { buildReportsPageObject } from './POMs/reportsPage.ts'
 export { buildTestsPageObject } from './POMs/testsPage.ts'
 // Export setup utilities
 export * from './setup.ts'
+export type { DashboardFixture } from './types.ts'
 export * from './types.ts'

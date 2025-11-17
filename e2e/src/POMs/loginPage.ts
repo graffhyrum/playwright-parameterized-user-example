@@ -1,16 +1,11 @@
-import { type Page, expect } from '@playwright/test'
+import { getDemoAppUrl } from '@monorepo/utils'
+import { expect, type Page } from '@playwright/test'
 import type { TestableEnvironment, User } from '../types.ts'
 
 export function buildLoginPageObject(page: Page, env: TestableEnvironment, user: User) {
   // Dynamically set the URL of this page by environment
   // Each environment runs on a different port for the demo app
-  const portMap = {
-    production: 3000,
-    staging: 3001,
-    development: 3002,
-  }
-  const port = portMap[env]
-  const url = `http://localhost:${port}`
+  const url = getDemoAppUrl(env)
 
   return {
     login: async () => {

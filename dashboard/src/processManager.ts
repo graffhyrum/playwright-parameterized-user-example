@@ -1,11 +1,9 @@
 import { dirname, resolve } from 'node:path'
+import { type Environment, environments, getDemoAppPort } from '@monorepo/utils'
 import { type } from 'arktype'
 import { type Subprocess, spawn } from 'bun'
 
-const ENVIRONMENTS = ['production', 'staging', 'development'] as const
-export const EnvSchema = type.enumerated(...ENVIRONMENTS)
-
-export type Environment = typeof EnvSchema.infer
+export const EnvSchema = type.enumerated(...environments)
 
 interface ProcessInfo {
   process: Subprocess
@@ -65,13 +63,7 @@ function createProcessManager() {
       return { success: false, message: `${env} environment is already running` }
     }
 
-    const portMap = {
-      production: 3000,
-      staging: 3001,
-      development: 3002,
-    }
-
-    const port = portMap[env]
+    const port = getDemoAppPort(env)
 
     try {
       // Use current Bun executable path

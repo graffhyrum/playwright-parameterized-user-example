@@ -8,174 +8,233 @@
   <script src="https://unpkg.com/htmx.org@1.9.10"></script>
 </head>
 <body>
-  <header>
-    <h1>🎛️ Playwright Test Dashboard</h1>
-    <p>Control panel for demo-app instances and Playwright tests</p>
-  </header>
+   <header>
+     <div class="header-left">
+       <h1>🎛️ Playwright Test Dashboard</h1>
+       <p>Control panel for demo-app instances and Playwright tests</p>
+     </div>
+     <nav class="header-nav">
+       <button class="tab-btn active" data-tab="demo-apps">Demo Apps</button>
+       <button class="tab-btn" data-tab="tests">Tests & Status</button>
+       <button class="tab-btn" data-tab="reports">Reports</button>
+     </nav>
+   </header>
 
-  <div class="container">
-    <!-- Left Panel: Demo App Controls -->
-    <div class="panel left-panel">
-      <div class="panel-header">
-        <h2>Demo App Instances</h2>
-      </div>
+   <div class="tabs-container">
+     <!-- Tab 1: Demo App Instances -->
+     <div id="demo-apps" class="tab-content active">
+       <div class="tab-header">
+         <h2>Demo App Instances</h2>
+         <button class="btn btn-primary" onclick="startAllApps()">Start All</button>
+       </div>
 
-      <div class="panel-content">
-        <!-- Production Environment -->
-        <div class="environment-card">
-          <div class="env-header">
-            <h3>Production</h3>
-            <span class="port-badge">Port 3000</span>
-            <span id="status-production" class="status-badge stopped">Stopped</span>
-          </div>
-          <div class="env-controls">
-            <button
-              class="btn btn-start"
-              onclick="startApp('production')"
-              id="start-btn-production">
-              Start
-            </button>
-            <button
-              class="btn btn-stop"
-              onclick="stopApp('production')"
-              id="stop-btn-production"
-              disabled>
-              Stop
-            </button>
-          </div>
-          <details class="log-container">
-            <summary class="log-header">Logs</summary>
-            <pre id="logs-production" class="log-output"></pre>
-          </details>
-        </div>
+       <div class="tab-content-inner">
+         <!-- Production Environment -->
+         <div class="environment-card">
+           <div class="env-header">
+             <h3>Production</h3>
+             <span class="port-badge">Port 3000</span>
+             <span id="status-production" class="status-badge stopped">Stopped</span>
+           </div>
+           <div class="env-controls">
+             <button
+               class="btn btn-start"
+               onclick="startApp('production')"
+               id="start-btn-production">
+               Start
+             </button>
+             <button
+               class="btn btn-stop"
+               onclick="stopApp('production')"
+               id="stop-btn-production"
+               disabled>
+               Stop
+             </button>
+           </div>
+           <details class="log-container">
+             <summary class="log-header">Logs</summary>
+             <pre id="logs-production" class="log-output"></pre>
+           </details>
+         </div>
 
-        <!-- Staging Environment -->
-        <div class="environment-card">
-          <div class="env-header">
-            <h3>Staging</h3>
-            <span class="port-badge">Port 3001</span>
-            <span id="status-staging" class="status-badge stopped">Stopped</span>
-          </div>
-          <div class="env-controls">
-            <button
-              class="btn btn-start"
-              onclick="startApp('staging')"
-              id="start-btn-staging">
-              Start
-            </button>
-            <button
-              class="btn btn-stop"
-              onclick="stopApp('staging')"
-              id="stop-btn-staging"
-              disabled>
-              Stop
-            </button>
-          </div>
-          <details class="log-container">
-            <summary class="log-header">Logs</summary>
-            <pre id="logs-staging" class="log-output"></pre>
-          </details>
-        </div>
+         <!-- Staging Environment -->
+         <div class="environment-card">
+           <div class="env-header">
+             <h3>Staging</h3>
+             <span class="port-badge">Port 3001</span>
+             <span id="status-staging" class="status-badge stopped">Stopped</span>
+           </div>
+           <div class="env-controls">
+             <button
+               class="btn btn-start"
+               onclick="startApp('staging')"
+               id="start-btn-staging">
+               Start
+             </button>
+             <button
+               class="btn btn-stop"
+               onclick="stopApp('staging')"
+               id="stop-btn-staging"
+               disabled>
+               Stop
+             </button>
+           </div>
+           <details class="log-container">
+             <summary class="log-header">Logs</summary>
+             <pre id="logs-staging" class="log-output"></pre>
+           </details>
+         </div>
 
-        <!-- Development Environment -->
-        <div class="environment-card">
-          <div class="env-header">
-            <h3>Development</h3>
-            <span class="port-badge">Port 3002</span>
-            <span id="status-development" class="status-badge stopped">Stopped</span>
-          </div>
-          <div class="env-controls">
-            <button
-              class="btn btn-start"
-              onclick="startApp('development')"
-              id="start-btn-development">
-              Start
-            </button>
-            <button
-              class="btn btn-stop"
-              onclick="stopApp('development')"
-              id="stop-btn-development"
-              disabled>
-              Stop
-            </button>
-          </div>
-          <details class="log-container">
-            <summary class="log-header">Logs</summary>
-            <pre id="logs-development" class="log-output"></pre>
-          </details>
-        </div>
-      </div>
-    </div>
+         <!-- Development Environment -->
+         <div class="environment-card">
+           <div class="env-header">
+             <h3>Development</h3>
+             <span class="port-badge">Port 3002</span>
+             <span id="status-development" class="status-badge stopped">Stopped</span>
+           </div>
+           <div class="env-controls">
+             <button
+               class="btn btn-start"
+               onclick="startApp('development')"
+               id="start-btn-development">
+               Start
+             </button>
+             <button
+               class="btn btn-stop"
+               onclick="stopApp('development')"
+               id="stop-btn-development"
+               disabled>
+               Stop
+             </button>
+           </div>
+           <details class="log-container">
+             <summary class="log-header">Logs</summary>
+             <pre id="logs-development" class="log-output"></pre>
+           </details>
+         </div>
+       </div>
+     </div>
 
-    <!-- Right Panel: Test Runner -->
-    <div class="panel right-panel">
-      <div class="panel-header">
-        <h2>Playwright Tests</h2>
-      </div>
+     <!-- Tab 2: Tests & Status -->
+     <div id="tests" class="tab-content">
+       <div class="status-banner">
+         <div class="status-banner-header">
+           <h2>Demo App Status Summary</h2>
+           <button class="btn btn-secondary btn-small" onclick="toggleAllApps()">Toggle All</button>
+         </div>
+         <div class="status-grid">
+           <div class="status-item">
+             <span class="status-label">Production:</span>
+             <span id="banner-status-production" class="status-badge stopped">Stopped</span>
+             <button class="btn btn-small btn-outline" onclick="toggleApp('production')" id="banner-btn-production">Start</button>
+           </div>
+           <div class="status-item">
+             <span class="status-label">Staging:</span>
+             <span id="banner-status-staging" class="status-badge stopped">Stopped</span>
+             <button class="btn btn-small btn-outline" onclick="toggleApp('staging')" id="banner-btn-staging">Start</button>
+           </div>
+           <div class="status-item">
+             <span class="status-label">Development:</span>
+             <span id="banner-status-development" class="status-badge stopped">Stopped</span>
+             <button class="btn btn-small btn-outline" onclick="toggleApp('development')" id="banner-btn-development">Start</button>
+           </div>
+         </div>
+       </div>
 
-      <div class="panel-content">
-        <!-- Info Notice -->
-        <div class="info-notice">
-          <strong>ℹ️ Before running tests:</strong> Start the required demo-app environments on the left panel.
-          Tests will fail if the apps aren't running on their ports (3000/3001/3002).
-        </div>
+       <div class="tests-section">
+         <!-- Info Notice -->
+         <div class="info-notice">
+           <strong>ℹ️ Before running tests:</strong> Start the required demo-app environments on the Demo Apps tab.
+           Tests will fail if the apps aren't running on their ports (3000/3001/3002).
+         </div>
 
-        <!-- Test Controls -->
-        <div class="test-controls">
-          <div class="control-group">
-            <label for="test-project">Project (optional):</label>
-            <input
-              type="text"
-              id="test-project"
-              placeholder="e.g., chromium-free production"
-              class="input-text">
-          </div>
-          <div class="control-group">
-            <button
-              class="btn btn-primary btn-large"
-              onclick="runTests()"
-              id="run-tests-btn">
-              ▶ Run Tests
-            </button>
-            <button
-              class="btn btn-stop btn-large"
-              onclick="stopTests()"
-              id="stop-tests-btn"
-              disabled>
-              ⏹ Stop Tests
-            </button>
-          </div>
-          <div id="test-status" class="test-status"></div>
-        </div>
+         <!-- Test Controls -->
+         <div class="test-controls">
+           <div class="control-group">
+             <label for="test-project">Project (optional):</label>
+             <input
+               type="text"
+               id="test-project"
+               placeholder="e.g., chromium-free production"
+               class="input-text">
+           </div>
+           <div class="control-group">
+             <button
+               class="btn btn-primary btn-large"
+               onclick="runTests()"
+               id="run-tests-btn">
+               ▶ Run Tests
+             </button>
+             <button
+               class="btn btn-stop btn-large"
+               onclick="stopTests()"
+               id="stop-tests-btn"
+               disabled>
+               ⏹ Stop Tests
+             </button>
+           </div>
+           <div id="test-status" class="test-status"></div>
+         </div>
 
-        <!-- Test Output -->
-        <details class="test-output-section" open>
-          <summary class="log-header">Test Output</summary>
-          <pre id="test-logs" class="test-output"></pre>
-        </details>
+         <!-- Test Output -->
+         <details class="test-output-section" open>
+           <summary class="log-header">Test Output</summary>
+           <pre id="test-logs" class="test-output"></pre>
+         </details>
+       </div>
+     </div>
 
-        <!-- Playwright Report -->
-        <div class="report-section">
-          <div class="report-header">
-            <h3>Playwright HTML Report</h3>
-            <button
-              class="btn btn-secondary"
-              onclick="refreshReport()"
-              id="refresh-report-btn">
-              🔄 Refresh
-            </button>
-          </div>
-          <div id="report-container" class="report-container">
-            <div class="report-placeholder">
-              Run tests to generate a report
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
+     <!-- Tab 3: Reports -->
+     <div id="reports" class="tab-content">
+       <div class="tab-header">
+         <h2>Playwright HTML Report</h2>
+       </div>
+
+       <div class="tab-content-inner">
+         <div class="report-controls">
+           <button
+             class="btn btn-secondary"
+             onclick="refreshReport()"
+             id="refresh-report-btn">
+             🔄 Refresh Report
+           </button>
+         </div>
+         <div id="report-container" class="report-container">
+           <div class="report-placeholder">
+             Run tests to generate a report
+           </div>
+         </div>
+       </div>
+     </div>
+   </div>
 
   <script>
+    // Tab switching functionality
+    function switchTab(tabName) {
+      // Hide all tabs
+      document.querySelectorAll('.tab-content').forEach(tab => {
+        tab.classList.remove('active');
+      });
+
+      // Remove active class from all tab buttons
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('active');
+      });
+
+      // Show selected tab
+      document.getElementById(tabName).classList.add('active');
+
+      // Add active class to clicked button
+      document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
+    }
+
+    // Add click handlers to tab buttons
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        switchTab(btn.dataset.tab);
+      });
+    });
+
     // SSE connection for real-time updates
     const eventSource = new EventSource('/api/sse/logs');
     let lastAppLogs = {};
@@ -207,17 +266,28 @@
     function updateAppStatus(status) {
       ['production', 'staging', 'development'].forEach(env => {
         const statusEl = document.getElementById(`status-${env}`);
+        const bannerStatusEl = document.getElementById(`banner-status-${env}`);
+        const bannerBtn = document.getElementById(`banner-btn-${env}`);
         const startBtn = document.getElementById(`start-btn-${env}`);
         const stopBtn = document.getElementById(`stop-btn-${env}`);
 
         if (status[env].running) {
-          statusEl.textContent = `Running (${status[env].uptime}s)`;
+          const statusText = `Running (${status[env].uptime}s)`;
+          statusEl.textContent = statusText;
           statusEl.className = 'status-badge running';
+          bannerStatusEl.textContent = statusText;
+          bannerStatusEl.className = 'status-badge running';
+          bannerBtn.textContent = 'Stop';
+          bannerBtn.className = 'btn btn-small btn-outline btn-stop';
           startBtn.disabled = true;
           stopBtn.disabled = false;
         } else {
           statusEl.textContent = 'Stopped';
           statusEl.className = 'status-badge stopped';
+          bannerStatusEl.textContent = 'Stopped';
+          bannerStatusEl.className = 'status-badge stopped';
+          bannerBtn.textContent = 'Start';
+          bannerBtn.className = 'btn btn-small btn-outline btn-start';
           startBtn.disabled = false;
           stopBtn.disabled = true;
         }
@@ -285,6 +355,63 @@
     }
 
     // API calls
+    async function startAllApps() {
+      const environments = ['production', 'staging', 'development'];
+      for (const env of environments) {
+        try {
+          const response = await fetch('/api/demo-app/start', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ environment: env }),
+          });
+          const result = await response.json();
+          if (!result.success) {
+            alert(`Failed to start ${env}: ${result.message}`);
+          }
+        } catch (error) {
+          alert(`Failed to start ${env}: ${error}`);
+        }
+      }
+    }
+
+    async function toggleApp(environment) {
+      const statusEl = document.getElementById(`status-${environment}`);
+      const isRunning = statusEl.classList.contains('running');
+
+      if (isRunning) {
+        await stopApp(environment);
+      } else {
+        await startApp(environment);
+      }
+    }
+
+    async function toggleAllApps() {
+      const environments = ['production', 'staging', 'development'];
+      const runningEnvs = [];
+      const stoppedEnvs = [];
+
+      // Check current status of all environments
+      environments.forEach(env => {
+        const statusEl = document.getElementById(`status-${env}`);
+        if (statusEl.classList.contains('running')) {
+          runningEnvs.push(env);
+        } else {
+          stoppedEnvs.push(env);
+        }
+      });
+
+      // If any are running, stop all. Otherwise, start all.
+      if (runningEnvs.length > 0) {
+        for (const env of runningEnvs) {
+          await stopApp(env);
+        }
+      } else {
+        for (const env of stoppedEnvs) {
+          await startApp(env);
+        }
+      }
+    }
+
     async function startApp(environment) {
       try {
         const response = await fetch('/api/demo-app/start', {
