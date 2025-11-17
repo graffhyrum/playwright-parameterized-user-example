@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Playwright Test Dashboard</title>
+  <link rel="stylesheet" href="/styles.css">
+  <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+</head>
+<body>
+  <header>
+    <h1>🎛️ Playwright Test Dashboard</h1>
+    <p>Control panel for demo-app instances and Playwright tests</p>
+  </header>
+
+  <div class="container">
+    <!-- Left Panel: Demo App Controls -->
+    <div class="panel left-panel">
+      <div class="panel-header">
+        <h2>Demo App Instances</h2>
+      </div>
+
+      <div class="panel-content">
+        <!-- Production Environment -->
+        <div class="environment-card">
+          <div class="env-header">
+            <h3>Production</h3>
+            <span class="port-badge">Port 3000</span>
+            <span id="status-production" class="status-badge stopped">Stopped</span>
+          </div>
+          <div class="env-controls">
+            <button
+              class="btn btn-start"
+              onclick="startApp('production')"
+              id="start-btn-production">
+              Start
+            </button>
+            <button
+              class="btn btn-stop"
+              onclick="stopApp('production')"
+              id="stop-btn-production"
+              disabled>
+              Stop
+            </button>
+          </div>
+          <div class="log-container">
+            <div class="log-header">Logs</div>
+            <pre id="logs-production" class="log-output"></pre>
+          </div>
+        </div>
+
+        <!-- Staging Environment -->
+        <div class="environment-card">
+          <div class="env-header">
+            <h3>Staging</h3>
+            <span class="port-badge">Port 3001</span>
+            <span id="status-staging" class="status-badge stopped">Stopped</span>
+          </div>
+          <div class="env-controls">
+            <button
+              class="btn btn-start"
+              onclick="startApp('staging')"
+              id="start-btn-staging">
+              Start
+            </button>
+            <button
+              class="btn btn-stop"
+              onclick="stopApp('staging')"
+              id="stop-btn-staging"
+              disabled>
+              Stop
+            </button>
+          </div>
+          <div class="log-container">
+            <div class="log-header">Logs</div>
+            <pre id="logs-staging" class="log-output"></pre>
+          </div>
+        </div>
+
+        <!-- Development Environment -->
+        <div class="environment-card">
+          <div class="env-header">
+            <h3>Development</h3>
+            <span class="port-badge">Port 3002</span>
+            <span id="status-development" class="status-badge stopped">Stopped</span>
+          </div>
+          <div class="env-controls">
+            <button
+              class="btn btn-start"
+              onclick="startApp('development')"
+              id="start-btn-development">
+              Start
+            </button>
+            <button
+              class="btn btn-stop"
+              onclick="stopApp('development')"
+              id="stop-btn-development"
+              disabled>
+              Stop
+            </button>
+          </div>
+          <div class="log-container">
+            <div class="log-header">Logs</div>
+            <pre id="logs-development" class="log-output"></pre>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Panel: Test Runner -->
+    <div class="panel right-panel">
+      <div class="panel-header">
+        <h2>Playwright Tests</h2>
+      </div>
+
+      <div class="panel-content">
+        <!-- Test Controls -->
+        <div class="test-controls">
+          <div class="control-group">
+            <label for="test-project">Project (optional):</label>
+            <input
+              type="text"
+              id="test-project"
+              placeholder="e.g., chromium-free production"
+              class="input-text">
+          </div>
+          <div class="control-group">
+            <button
+              class="btn btn-primary btn-large"
+              onclick="runTests()"
+              id="run-tests-btn">
+              ▶ Run Tests
+            </button>
+            <button
+              class="btn btn-stop btn-large"
+              onclick="stopTests()"
+              id="stop-tests-btn"
+              disabled>
+              ⏹ Stop Tests
+            </button>
+          </div>
+          <div id="test-status" class="test-status"></div>
+        </div>
+
+        <!-- Test Output -->
+        <div class="test-output-section">
+          <div class="log-header">Test Output</div>
+          <pre id="test-logs" class="test-output"></pre>
+        </div>
+
+        <!-- Playwright Report -->
+        <div class="report-section">
+          <div class="report-header">
+            <h3>Playwright HTML Report</h3>
+            <button
+              class="btn btn-secondary"
+              onclick="refreshReport()"
+              id="refresh-report-btn">
+              🔄 Refresh
+            </button>
+          </div>
+          <div id="report-container" class="report-container">
+            <div class="report-placeholder">
+              Run tests to generate a report
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // SSE connection for real-time updates
+    const eventSource = new EventSource('/api/sse/logs');
+    let lastAppLogs = {};
+    let lastTestLogs = [];
+
+    eventSource.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+
+      if (data.type === 'update') {
+        // Update app status
+        updateAppStatus(data.appStatus);
+
+        // Update app logs
+        updateAppLogs(data.appLogs);
+
+        // Update test status
+        updateTestStatus(data.testStatus);
+
+        // Update test logs
+        updateTestLogs(data.testLogs);
+
+        // Update report availability
+        if (data.hasReport) {
+          showReportAvailable();
+        }
+      }
+    };
+
+    function updateAppStatus(status) {
+      ['production', 'staging', 'development'].forEach(env => {
+        const statusEl = document.getElementById(`status-${env}`);
+        const startBtn = document.getElementById(`start-btn-${env}`);
+        const stopBtn = document.getElementById(`stop-btn-${env}`);
+
+        if (status[env].running) {
+          statusEl.textContent = `Running (${status[env].uptime}s)`;
+          statusEl.className = 'status-badge running';
+          startBtn.disabled = true;
+          stopBtn.disabled = false;
+        } else {
+          statusEl.textContent = 'Stopped';
+          statusEl.className = 'status-badge stopped';
+          startBtn.disabled = false;
+          stopBtn.disabled = true;
+        }
+      });
+    }
+
+    function updateAppLogs(logs) {
+      ['production', 'staging', 'development'].forEach(env => {
+        const logsEl = document.getElementById(`logs-${env}`);
+        const newLogs = logs[env] || [];
+
+        if (JSON.stringify(newLogs) !== JSON.stringify(lastAppLogs[env])) {
+          const shouldScroll = logsEl.scrollHeight - logsEl.scrollTop <= logsEl.clientHeight + 50;
+          logsEl.textContent = newLogs.join('\n') || 'No logs yet...';
+          if (shouldScroll) {
+            logsEl.scrollTop = logsEl.scrollHeight;
+          }
+          lastAppLogs[env] = newLogs;
+        }
+      });
+    }
+
+    function updateTestStatus(status) {
+      const statusEl = document.getElementById('test-status');
+      const runBtn = document.getElementById('run-tests-btn');
+      const stopBtn = document.getElementById('stop-tests-btn');
+
+      if (status.running) {
+        statusEl.innerHTML = `<span class="status-running">⏳ Running... (${status.duration}s)</span>`;
+        runBtn.disabled = true;
+        stopBtn.disabled = false;
+      } else {
+        if (status.exitCode !== undefined) {
+          if (status.exitCode === 0) {
+            statusEl.innerHTML = `<span class="status-success">✓ Tests passed (${status.duration}s)</span>`;
+          } else {
+            statusEl.innerHTML = `<span class="status-error">✗ Tests failed (${status.duration}s)</span>`;
+          }
+        } else {
+          statusEl.innerHTML = '';
+        }
+        runBtn.disabled = false;
+        stopBtn.disabled = true;
+      }
+    }
+
+    function updateTestLogs(logs) {
+      const logsEl = document.getElementById('test-logs');
+
+      if (JSON.stringify(logs) !== JSON.stringify(lastTestLogs)) {
+        const shouldScroll = logsEl.scrollHeight - logsEl.scrollTop <= logsEl.clientHeight + 50;
+        logsEl.textContent = logs.join('\n') || 'No test output yet...';
+        if (shouldScroll) {
+          logsEl.scrollTop = logsEl.scrollHeight;
+        }
+        lastTestLogs = logs;
+      }
+    }
+
+    function showReportAvailable() {
+      const container = document.getElementById('report-container');
+      if (container.querySelector('.report-placeholder')) {
+        refreshReport();
+      }
+    }
+
+    // API calls
+    async function startApp(environment) {
+      try {
+        const response = await fetch('/api/demo-app/start', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ environment }),
+        });
+        const result = await response.json();
+        if (!result.success) {
+          alert(result.message);
+        }
+      } catch (error) {
+        alert('Failed to start app: ' + error);
+      }
+    }
+
+    async function stopApp(environment) {
+      try {
+        const response = await fetch('/api/demo-app/stop', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ environment }),
+        });
+        const result = await response.json();
+        if (!result.success) {
+          alert(result.message);
+        }
+      } catch (error) {
+        alert('Failed to stop app: ' + error);
+      }
+    }
+
+    async function runTests() {
+      const project = document.getElementById('test-project').value.trim();
+      try {
+        const response = await fetch('/api/tests/run', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ project: project || undefined }),
+        });
+        const result = await response.json();
+        if (!result.success) {
+          alert(result.message);
+        }
+      } catch (error) {
+        alert('Failed to run tests: ' + error);
+      }
+    }
+
+    async function stopTests() {
+      try {
+        const response = await fetch('/api/tests/stop', {
+          method: 'POST',
+        });
+        const result = await response.json();
+        if (!result.success) {
+          alert(result.message);
+        }
+      } catch (error) {
+        alert('Failed to stop tests: ' + error);
+      }
+    }
+
+    function refreshReport() {
+      const container = document.getElementById('report-container');
+      container.innerHTML = '<iframe src="/report/index.html" class="report-iframe"></iframe>';
+    }
+
+    // Cleanup on page unload
+    window.addEventListener('beforeunload', () => {
+      eventSource.close();
+    });
+  </script>
+</body>
+</html>

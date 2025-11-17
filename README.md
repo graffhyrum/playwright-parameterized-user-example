@@ -11,8 +11,29 @@ Portfolio project showcasing advanced Playwright patterns: dynamic test matrix g
 │   └── playwright.config.ts
 ├── demo-app/          # Demo System Under Test (SUT)
 │   └── src/           # Bun-based web application
+├── dashboard/         # Control panel SPA
+│   └── src/           # Bun server with HTMX UI
 └── package.json       # Workspace configuration
 ```
+
+## 🎛️ Dashboard
+
+This project includes a web-based control panel for managing demo-app instances and running tests:
+
+```bash
+bun run dashboard
+```
+
+Then open `http://localhost:4000` in your browser.
+
+**Features:**
+- Start/stop demo-app instances for each environment
+- View real-time logs from running apps
+- Run Playwright tests with live output
+- View embedded Playwright HTML reports
+- Real-time updates via Server-Sent Events (SSE)
+
+See [dashboard/README.md](dashboard/README.md) for details.
 
 ## What It Demonstrates
 
@@ -138,6 +159,13 @@ bun test:report       # View test results
 - Supports production/staging/development environments
 - Pre-configured test users (free/paid tiers)
 - Cookie-based authentication
+
+### Dashboard (`dashboard/`)
+
+- **[src/index.ts](dashboard/src/index.ts)** - Bun server with API endpoints
+- **[src/processManager.ts](dashboard/src/processManager.ts)** - Demo-app process lifecycle management
+- **[src/testRunner.ts](dashboard/src/testRunner.ts)** - Playwright test execution manager
+- **[src/public/](dashboard/src/public/)** - HTMX-based SPA with real-time updates
 
 ## Key Patterns
 
