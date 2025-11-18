@@ -7,18 +7,18 @@
     "start": "bun run src/index.ts",
     "lint": "biome check .",
     "lint:fix": "biome check --write .",
-    "format": "biome format --write ."
+    "format": "biome format --write .",
+    "vet": "tsc && biome check ."
   },
   "devDependencies": {
-    "@biomejs/biome": "^1.9.4",
-    "@playwright/test": "^1.56.1",
-    "@types/bun": "^1.3.2",
-    "@types/node": "^24.10.1"
+    "@biomejs/biome": "catalog:",
+    "@playwright/test": "catalog:",
+    "@types/node": "catalog:"
   },
   "dependencies": {
     "@monorepo/utils": "workspace:*"
   },
   "peerDependencies": {
-    "@typescript/native-preview": "^7.0.0-dev.20251117.1"
+    "@typescript/native-preview": "catalog:"
   }
 }

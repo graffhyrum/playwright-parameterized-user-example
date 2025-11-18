@@ -1,4 +1,14 @@
 import type { Page } from '@playwright/test'
+import type { DashboardPageObject } from './POMs/dashboardPage'
+import type { DemoAppsPageObject } from './POMs/demoAppsPage'
+import type { ReportsPageObject } from './POMs/reportsPage'
+import type { TestsPageObject } from './POMs/testsPage'
+import type { TabNavigationComponent } from './POMs/tabNavigation'
+import type { EnvironmentCardComponent } from './POMs/environmentCard'
+import type { TestFixtures } from './fixtures'
+
+// Re-export POM types for convenience
+export type { DashboardPageObject, DemoAppsPageObject, TestsPageObject, ReportsPageObject, TabNavigationComponent, EnvironmentCardComponent }
 
 // Dashboard environment - simpler than e2e since dashboard is single environment
 export type DashboardEnvironment = 'dashboard'
@@ -20,38 +30,4 @@ export type TestStatus = 'running' | 'completed' | 'failed' | 'idle'
 // Dashboard fixture that provides POMs and page
 export type DashboardFixture = {
   page: Page
-  POMs: {
-    demoAppsPage: DemoAppsPageObject
-    testsPage: TestsPageObject
-    reportsPage: ReportsPageObject
-  }
-}
-
-// Forward declarations for POM types (defined in their respective files)
-export type DemoAppsPageObject = {
-  switchToTab: () => Promise<void>
-  startApp: (env: DemoEnvironment) => Promise<void>
-  stopApp: (env: DemoEnvironment) => Promise<void>
-  toggleApp: (env: DemoEnvironment) => Promise<void>
-  startAllApps: () => Promise<void>
-  toggleAllApps: () => Promise<void>
-  getAppStatus: (env: DemoEnvironment) => Promise<AppStatus>
-  expandLogs: (env: DemoEnvironment) => Promise<void>
-  getLogs: (env: DemoEnvironment) => Promise<string>
-}
-
-export type TestsPageObject = {
-  switchToTab: () => Promise<void>
-  runTests: (project?: string) => Promise<void>
-  stopTests: () => Promise<void>
-  getTestStatus: () => Promise<TestStatus>
-  getTestOutput: () => Promise<string>
-  setProjectFilter: (project: string) => Promise<void>
-  getProjectFilter: () => Promise<string>
-}
-
-export type ReportsPageObject = {
-  switchToTab: () => Promise<void>
-  refreshReport: () => Promise<void>
-  isReportAvailable: () => Promise<boolean>
-}
+} & TestFixtures

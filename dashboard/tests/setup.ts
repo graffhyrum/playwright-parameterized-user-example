@@ -1,4 +1,4 @@
-import { type APIRequestContext, expect, type Page } from '@playwright/test'
+import { type APIRequestContext, type Page, expect } from '@playwright/test'
 
 const DASHBOARD_URL = 'http://localhost:4000'
 const TIMEOUT = 30000
