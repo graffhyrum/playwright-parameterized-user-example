@@ -37,33 +37,3 @@ export function getDemoAppEnvVars(env: Environment): string {
   const port = getDemoAppPort(env)
   return `PORT=${port} NODE_ENV=${env}`
 }
-
-// Script command builders
-export const scripts = {
-  // Development commands
-  dev: (entry: string) => `bun run ${entry}`,
-  start: (entry: string) => `bun run ${entry}`,
-
-  // Test commands
-  test: 'bunx playwright test',
-  testUi: 'bunx playwright test --ui',
-  testDebug: 'bunx playwright test --debug',
-  testReport: 'bunx playwright show-report',
-
-  // Code quality commands
-  lint: 'biome check .',
-  lintFix: 'biome check --write .',
-  format: 'biome format --write .',
-
-  // Workspace commands
-  installAll: 'bun install',
-  dashboard: 'cd dashboard && bun --hot run dev',
-  devApp: (env?: Environment) =>
-    env ? `cd demo-app && ${getDemoAppEnvVars(env)} bun run dev` : 'cd demo-app && bun run dev',
-  testFromRoot: 'cd e2e && bun run test',
-  testUiFromRoot: 'cd e2e && bun run test:ui',
-  testReportFromRoot: 'cd e2e && bun run report',
-  lintWorkspace: 'biome check .',
-  lintFixWorkspace: 'biome check --write .',
-  formatWorkspace: 'biome format --write .',
-} as const
