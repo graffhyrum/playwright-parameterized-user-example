@@ -48,7 +48,7 @@ const _server = Bun.serve({
 
     // Handle login POST
     if (url.pathname === '/api/login' && req.method === 'POST') {
-      const body = await req.json()
+      const body = (await req.json()) as { email: string; password: string }
       const { email, password } = body
 
       const user = users.get(email)

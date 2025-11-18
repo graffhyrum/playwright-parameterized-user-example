@@ -25,21 +25,13 @@ To run all three environments simultaneously for comprehensive testing:
 
 ```bash
 # Terminal 1 - Production
-PORT=3000 NODE_ENV=production bun run dev
+bun run dev:production
 
 # Terminal 2 - Staging
-PORT=3001 NODE_ENV=staging bun run dev
+bun run dev:staging
 
 # Terminal 3 - Development
-PORT=3002 NODE_ENV=development bun run dev
-```
-
-Or from the root directory:
-
-```bash
-bun run dev:app:production
-bun run dev:app:staging
-bun run dev:app:development
+bun run dev:development
 ```
 
 ## Test Users
