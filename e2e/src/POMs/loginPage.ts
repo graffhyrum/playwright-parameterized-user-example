@@ -1,5 +1,5 @@
 import { getDemoAppUrl } from '@monorepo/utils'
-import { expect, type Page } from '@playwright/test'
+import { type Page, expect } from '@playwright/test'
 import type { TestableEnvironment, User } from '../types.ts'
 
 export function buildLoginPageObject(page: Page, env: TestableEnvironment, user: User) {

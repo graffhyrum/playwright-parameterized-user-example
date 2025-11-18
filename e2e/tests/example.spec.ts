@@ -1,4 +1,3 @@
-import { expect } from '@playwright/test'
 import { test } from '../src/fixtures'
 
 test('user can login and see dashboard', async ({ user1 }) => {

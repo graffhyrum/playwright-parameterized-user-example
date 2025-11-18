@@ -1,4 +1,4 @@
-import { devices, type PlaywrightTestProject } from '@playwright/test'
+import { type PlaywrightTestProject, devices } from '@playwright/test'
 import type { ThisTestProject } from './fixtures.ts'
 import { testableEnvironments, userTiers } from './types.ts'
 
