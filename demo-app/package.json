@@ -4,9 +4,9 @@
   "private": true,
   "scripts": {
     "dev": "bun run src/index.ts",
-    "dev:production": "PORT=3000 NODE_ENV=production bun run src/index.ts",
-    "dev:staging": "PORT=3001 NODE_ENV=staging bun run src/index.ts",
-    "dev:development": "PORT=3002 NODE_ENV=development bun run src/index.ts",
+    "dev:production": "bun run env.ts production",
+    "dev:staging": "bun run env.ts staging",
+    "dev:development": "bun run env.ts development",
     "start": "bun run src/index.ts",
     "lint": "biome check .",
     "lint:fix": "biome check --write .",

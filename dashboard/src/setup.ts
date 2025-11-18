@@ -1,15 +1,14 @@
+import { environments, getDashboardUrl } from '@monorepo/utils'
 import { type APIRequestContext, type Page, expect } from '@playwright/test'
 
-const DASHBOARD_URL = 'http://localhost:4000'
 const TIMEOUT = 30000
 
-export const getDashboardUrl = () => DASHBOARD_URL
-
 export const waitForDashboardReady = async (request: APIRequestContext) => {
+  const dashboardUrl = getDashboardUrl()
   const startTime = Date.now()
   while (Date.now() - startTime < TIMEOUT) {
     try {
-      const response = await request.get(`${DASHBOARD_URL}/api/demo-app/status`)
+      const response = await request.get(`${dashboardUrl}/api/demo-app/status`)
       if (response.ok()) return
     } catch {
       // Server not ready yet
@@ -20,10 +19,10 @@ export const waitForDashboardReady = async (request: APIRequestContext) => {
 }
 
 export const stopAllDemoApps = async (request: APIRequestContext) => {
-  const environments = ['production', 'staging', 'development']
+  const dashboardUrl = getDashboardUrl()
   for (const environment of environments) {
     try {
-      await request.post(`${DASHBOARD_URL}/api/demo-app/stop`, {
+      await request.post(`${dashboardUrl}/api/demo-app/stop`, {
         data: { environment },
       })
     } catch {
@@ -35,8 +34,9 @@ export const stopAllDemoApps = async (request: APIRequestContext) => {
 }
 
 export const stopTests = async (request: APIRequestContext) => {
+  const dashboardUrl = getDashboardUrl()
   try {
-    await request.post(`${DASHBOARD_URL}/api/tests/stop`)
+    await request.post(`${dashboardUrl}/api/tests/stop`)
   } catch {
     // Ignore errors - may not be running
   }
@@ -54,9 +54,10 @@ export const waitForDemoAppRunning = async (
   environment: string,
   maxWaitMs = 10000
 ) => {
+  const dashboardUrl = getDashboardUrl()
   const startTime = Date.now()
   while (Date.now() - startTime < maxWaitMs) {
-    const response = await request.get(`${DASHBOARD_URL}/api/demo-app/status`)
+    const response = await request.get(`${dashboardUrl}/api/demo-app/status`)
     const data = await response.json()
     if (data[environment]?.running) return
     await new Promise((resolve) => setTimeout(resolve, 500))
@@ -69,9 +70,10 @@ export const waitForDemoAppStopped = async (
   environment: string,
   maxWaitMs = 5000
 ) => {
+  const dashboardUrl = getDashboardUrl()
   const startTime = Date.now()
   while (Date.now() - startTime < maxWaitMs) {
-    const response = await request.get(`${DASHBOARD_URL}/api/demo-app/status`)
+    const response = await request.get(`${dashboardUrl}/api/demo-app/status`)
     const data = await response.json()
     if (!data[environment]?.running) return
     await new Promise((resolve) => setTimeout(resolve, 500))
@@ -80,9 +82,10 @@ export const waitForDemoAppStopped = async (
 }
 
 export const waitForTestsComplete = async (request: APIRequestContext, maxWaitMs = 60000) => {
+  const dashboardUrl = getDashboardUrl()
   const startTime = Date.now()
   while (Date.now() - startTime < maxWaitMs) {
-    const response = await request.get(`${DASHBOARD_URL}/api/tests/status`)
+    const response = await request.get(`${dashboardUrl}/api/tests/status`)
     const data = await response.json()
     if (!data.running) return data
     await new Promise((resolve) => setTimeout(resolve, 1000))

@@ -1,3 +1,4 @@
+import { getDashboardUrl } from '@monorepo/utils'
 import { test as base } from '@playwright/test'
 import { buildDashboardPage } from './POMs/dashboardPage.ts'
 import { buildDemoAppsPage } from './POMs/demoAppsPage.ts'
@@ -6,7 +7,7 @@ import type { ComponentObject, PageObject } from './POMs/pomTemplate'
 import { buildReportsPage } from './POMs/reportsPage.ts'
 import { buildTabNavigation } from './POMs/tabNavigation.ts'
 import { buildTestsPage } from './POMs/testsPage.ts'
-import { cleanupAll, getDashboardUrl, waitForDashboardReady } from './setup.ts'
+import { cleanupAll, waitForDashboardReady } from './setup.ts'
 import type { DashboardFixture } from './types.ts'
 
 type PageLinkKeys = 'dashboard' | 'demoApps' | 'tests' | 'reports'

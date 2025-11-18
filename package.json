@@ -21,7 +21,8 @@
     "@typescript/native-preview"
   ],
   "scripts": {
-    "dashboard": "cd dashboard && bun run dev",
+    "runDemo": "bun run runDemo.ts",
+    "dashboard": "bun run --filter '@monorepo/dashboard' dev",
     "dev:app": "cd demo-app && bun run dev",
     "dev:app:production": "cd demo-app && bun run dev:production",
     "dev:app:staging": "cd demo-app && bun run dev:staging",

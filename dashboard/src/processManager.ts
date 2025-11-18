@@ -130,7 +130,6 @@ function createProcessManager() {
   }
 
   function getStatus(): Record<Environment, { running: boolean; uptime?: number }> {
-    const environments: Environment[] = ['production', 'staging', 'development']
     const status: any = {}
 
     for (const env of environments) {

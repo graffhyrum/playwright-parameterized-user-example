@@ -47,29 +47,34 @@ cd demo-app && bun run dev:development
 
 ### Testing
 
+**Fully Verify Changes**
+```bash
+bun vet
+```
+
 **Run all tests:**
 ```bash
-cd e2e && bun run test
+bun run test
 ```
 
 **Run specific test:**
 ```bash
-cd e2e && bun run test tests/example.spec.ts
+bun run test -- tests/example.spec.ts
 ```
 
 **Run single project (browser/user/env combo):**
 ```bash
-cd e2e && bun run test --project="chromium-free production"
+bun run test --project="chromium-free production"
 ```
 
 **Run with UI:**
 ```bash
-cd e2e && bun run test:ui
+bun run test:ui
 ```
 
 **Show test report:**
 ```bash
-cd e2e && bun run test:report
+bun run test:report
 ```
 
 ## Architecture

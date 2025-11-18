@@ -105,42 +105,70 @@ export const buildLoginPageObject = (page, env, user) => {
 
 [Full implementation →](e2e/src/POMs/loginPage.ts)
 
-## Quick Start
+## Getting Started
 
-### 1. Install Dependencies
+Choose one of the following approaches to explore the framework:
+
+### Option 1: Interactive Dashboard Exploration
+
+Use the web-based dashboard to interactively explore and control the testing framework.
+
+#### 1. Install Dependencies
 
 ```bash
 bun install
 ```
 
-### 2. Start Demo Application(s)
-
-Run all three environments in separate terminals for full testing:
+#### 2. Start the Dashboard
 
 ```bash
-# Terminal 1 - Production (port 3000)
-cd demo-app && bun run dev:production
-
-# Terminal 2 - Staging (port 3001)
-cd demo-app && bun run dev:staging
-
-# Terminal 3 - Development (port 3002)
-cd demo-app && bun run dev:development
+bun run dashboard
 ```
 
-Or run a single environment:
+Then open `http://localhost:4000` in your browser.
+
+#### 3. Explore the Framework
+
+The dashboard provides:
+- **Demo Apps Tab**: Start/stop individual demo app instances for each environment
+- **Tests & Status Tab**: Run Playwright tests with live output and project filtering
+- **Reports Tab**: View embedded Playwright HTML reports
+- **Real-time Updates**: Live logs and status via Server-Sent Events
+
+**Workflow:**
+1. Start one or more demo app environments from the Demo Apps tab
+2. Switch to Tests & Status tab and run tests
+3. Monitor test execution in real-time
+4. View detailed reports in the Reports tab
+
+### Option 2: Headless Demo Run
+
+Run a complete automated demo that starts all environments, executes the full test suite, and cleans up.
+
+#### 1. Install Dependencies
 
 ```bash
-cd demo-app && bun run dev
+bun install
 ```
 
-### 3. Run Tests
+#### 2. Run the Complete Demo
 
 ```bash
-cd e2e && bun run test              # Run all 36 configurations
-cd e2e && bun run test:ui           # Run with Playwright UI
-cd e2e && bun run test:report       # View test results
+bun run runDemo
 ```
+
+This script will:
+- Start all three demo app environments (production, staging, development) on ports 3000-3002
+- Wait for all apps to be ready
+- Execute the complete e2e test suite (36 configurations)
+- Display test results
+- Automatically clean up all demo app processes
+
+**What it demonstrates:**
+- Multi-environment testing across production/staging/development
+- Full test matrix execution (6 browsers × 2 user tiers × 3 environments = 36 configs)
+- Automated environment management
+- Clean teardown and resource cleanup
 
 ## Architecture
 

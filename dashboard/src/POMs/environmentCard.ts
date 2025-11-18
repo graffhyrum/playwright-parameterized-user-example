@@ -1,14 +1,11 @@
+import { getDemoAppPort } from '@monorepo/utils'
 import { type Page, expect } from '@playwright/test'
 import type { DemoEnvironment } from '../types.ts'
 import type { ComponentFactory, ComponentObject } from './pomTemplate'
 
 export function buildEnvironmentCardComponent(page: Page, environment: DemoEnvironment) {
   const envTitle = environment.charAt(0).toUpperCase() + environment.slice(1)
-  const portMap = {
-    production: 3000,
-    staging: 3001,
-    development: 3002,
-  }
+  const port = getDemoAppPort(environment)
 
   return {
     page,
@@ -42,7 +39,7 @@ export function buildEnvironmentCardComponent(page: Page, environment: DemoEnvir
       },
 
       hasPortBadge: async () => {
-        await expect(page.locator(`text=Port ${portMap[environment]}`)).toBeVisible()
+        await expect(page.locator(`text=Port ${port}`)).toBeVisible()
       },
 
       logsExpanded: async () => {
