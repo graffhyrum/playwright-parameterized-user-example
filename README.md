@@ -119,27 +119,27 @@ Run all three environments in separate terminals for full testing:
 
 ```bash
 # Terminal 1 - Production (port 3000)
-bun run dev:app:production
+cd demo-app && bun run dev:production
 
 # Terminal 2 - Staging (port 3001)
-bun run dev:app:staging
+cd demo-app && bun run dev:staging
 
 # Terminal 3 - Development (port 3002)
-bun run dev:app:development
+cd demo-app && bun run dev:development
 ```
 
 Or run a single environment:
 
 ```bash
-bun run dev:app
+cd demo-app && bun run dev
 ```
 
 ### 3. Run Tests
 
 ```bash
-bun test              # Run all 36 configurations
-bun test:ui           # Run with Playwright UI
-bun test:report       # View test results
+cd e2e && bun run test              # Run all 36 configurations
+cd e2e && bun run test:ui           # Run with Playwright UI
+cd e2e && bun run test:report       # View test results
 ```
 
 ## Architecture

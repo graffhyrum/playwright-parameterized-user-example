@@ -30,50 +30,46 @@ Then open `http://localhost:4000`
 
 **Start demo app (single environment):**
 ```bash
-bun run dev:app
+cd demo-app && bun run dev
 ```
 
 **Start all environments (for full test matrix):**
 ```bash
 # Production (port 3000)
-bun run dev:app:production
+cd demo-app && bun run dev:production
 
 # Staging (port 3001)
-bun run dev:app:staging
+cd demo-app && bun run dev:staging
 
 # Development (port 3002)
-bun run dev:app:development
+cd demo-app && bun run dev:development
 ```
 
 ### Testing
 
 **Run all tests:**
 ```bash
-bun test
-```
-OR from the e2e directory:
-```bash
-cd e2e && bunx playwright test
+cd e2e && bun run test
 ```
 
 **Run specific test:**
 ```bash
-cd e2e && bunx playwright test tests/example.spec.ts
+cd e2e && bun run test tests/example.spec.ts
 ```
 
 **Run single project (browser/user/env combo):**
 ```bash
-cd e2e && bunx playwright test --project="chromium-free production"
+cd e2e && bun run test --project="chromium-free production"
 ```
 
 **Run with UI:**
 ```bash
-bun test:ui
+cd e2e && bun run test:ui
 ```
 
 **Show test report:**
 ```bash
-bun test:report
+cd e2e && bun run test:report
 ```
 
 ## Architecture

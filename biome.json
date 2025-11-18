@@ -1,6 +1,6 @@
 {
   "$schema": "https://biomejs.dev/schemas/2.0.6/schema.json",
-  "assist": { "actions": { "source": { "organizeImports": "on" } } },
+
   "linter": {
     "enabled": true,
     "rules": {
@@ -55,21 +55,23 @@
     }
   },
   "files": {
-    "includes": [
+    "include": [
       "**/*.js",
       "**/*.ts",
       "**/*.jsx",
       "**/*.tsx",
-      "**/*.json",
-      "!**/node_modules/**",
-      "!**/dist/**",
-      "!**/build/**",
-      "!**/.next/**",
-      "!**/coverage/**",
-      "!**/*.d.ts",
-      "!**/playwright-report/**",
-      "!**/test-results/**",
-      "!**/playwright/.cache/**"
+      "**/*.json"
+    ],
+    "ignore": [
+      "**/node_modules/**",
+      "**/dist/**",
+      "**/build/**",
+      "**/.next/**",
+      "**/coverage/**",
+      "**/*.d.ts",
+      "**/playwright-report/**",
+      "**/test-results/**",
+      "**/playwright/.cache/**"
     ]
   }
 }
