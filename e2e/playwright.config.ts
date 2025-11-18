@@ -1,5 +1,5 @@
-import { defineConfig } from '@playwright/test';
-import {getProjects} from "./src/getProjects.ts";
+import { defineConfig } from '@playwright/test'
+import { getProjects } from './src/getProjects.ts'
 
 /**
  * See https://playwright.dev/docs/test-configuration.
@@ -10,14 +10,11 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
   workers: process.env.CI ? 1 : undefined,
-  reporter: [['html', {open: 'never'}]],
+  reporter: [['html', { open: 'never' }]],
   use: {
-    // baseURL: 'http://127.0.0.1:3000',
-    trace: 'on-first-retry',
+    trace: 'on',
   },
 
   /* Configure projects for major browsers */
-  projects: getProjects()
-});
-
-
+  projects: getProjects(),
+})

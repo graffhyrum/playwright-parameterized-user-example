@@ -1,0 +1,21 @@
+{
+  "name": "@monorepo/utils",
+  "version": "1.0.0",
+  "type": "module",
+  "private": true,
+  "main": "src/index.ts",
+  "scripts": {
+    "dev": "bun run src/index.ts",
+    "lint": "biome check .",
+    "lint:fix": "biome check --write .",
+    "format": "biome format --write .",
+    "vet": "tsc && biome check ."
+  },
+  "devDependencies": {
+    "@biomejs/biome": "catalog:",
+    "@types/bun": "catalog:"
+  },
+  "peerDependencies": {
+    "@typescript/native-preview": "catalog:"
+  }
+}

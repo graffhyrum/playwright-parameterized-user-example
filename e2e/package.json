@@ -1,0 +1,27 @@
+{
+  "name": "@monorepo/e2e",
+  "type": "module",
+  "private": true,
+  "devDependencies": {
+    "@biomejs/biome": "catalog:",
+    "@playwright/test": "catalog:",
+    "@types/bun": "catalog:"
+  },
+  "dependencies": {
+    "@monorepo/utils": "workspace:*"
+  },
+  "peerDependencies": {
+    "@typescript/native-preview": "catalog:"
+  },
+  "scripts": {
+    "dev": "bun run src/index.ts",
+    "test": "bunx playwright test",
+    "test:ui": "bunx playwright test --ui",
+    "test:debug": "bunx playwright test --debug",
+    "test:report": "bunx playwright show-report",
+    "lint": "biome check .",
+    "lint:fix": "biome check --write .",
+    "format": "biome format --write .",
+    "vet": "tsc && biome check ."
+  }
+}

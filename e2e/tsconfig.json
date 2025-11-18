@@ -1,4 +1,5 @@
 {
+  "typescript": "@typescript/native-preview",
   "compilerOptions": {
     // Environment setup & latest features
     "lib": ["esnext"],

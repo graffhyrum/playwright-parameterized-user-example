@@ -1,0 +1,24 @@
+{
+  "name": "@monorepo/dashboard",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "bun --hot run src/index.ts",
+    "start": "bun run src/index.ts",
+    "lint": "biome check .",
+    "lint:fix": "biome check --write .",
+    "format": "biome format --write .",
+    "vet": "tsc && biome check ."
+  },
+  "devDependencies": {
+    "@biomejs/biome": "catalog:",
+    "@playwright/test": "catalog:",
+    "@types/node": "catalog:"
+  },
+  "dependencies": {
+    "@monorepo/utils": "workspace:*"
+  },
+  "peerDependencies": {
+    "@typescript/native-preview": "catalog:"
+  }
+}
