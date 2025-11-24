@@ -11,7 +11,7 @@
     "lint": "biome check .",
     "lint:fix": "biome check --write .",
     "format": "biome format --write .",
-    "vet": "tsc && biome check ."
+    "vet": "tsc --noEmit&& biome check ."
   },
   "devDependencies": {
     "@biomejs/biome": "catalog:",
