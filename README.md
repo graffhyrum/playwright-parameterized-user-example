@@ -2,6 +2,20 @@
 
 Portfolio project showcasing advanced Playwright patterns: dynamic test matrix generation, custom fixtures, and environment-aware POMs.
 
+
+
+## Apps 
+
+### Dashboard Control Panel
+![Dashboard](docs/screenshots/dashboard.png)
+
+The web-based control panel provides real-time management of demo-app instances and test execution.
+
+### Demo Application (Production)
+![Demo App](docs/screenshots/demo-app.png)
+
+The demo System Under Test with user authentication and tier-specific features.
+
 ## Monorepo Structure
 
 ```
@@ -35,6 +49,8 @@ Then open `http://localhost:4000` in your browser.
 
 See [dashboard/README.md](dashboard/README.md) for details.
 
+
+
 ## What It Demonstrates
 
 ### 1. Dynamic Test Matrix (36 configurations)
@@ -42,7 +58,7 @@ See [dashboard/README.md](dashboard/README.md) for details.
 Programmatically generates test projects from combinations of browsers, user tiers, and environments:
 
 ```typescript
-// e2e/src/getProjects.ts:5-56
+// e2e/src/getProjects.ts
 const browsers = ['chromium', 'firefox', 'webkit', 'Mobile Chrome', 'Mobile Safari', 'Google Chrome'];
 const userTiers = ['free', 'paid'];
 const environments = ['production', 'staging', 'development'];
@@ -62,7 +78,7 @@ cd e2e && bunx playwright test --project="chromium-free production"
 Extends Playwright with environment-aware fixtures and isolated user contexts:
 
 ```typescript
-// e2e/src/fixtures.ts:32-55
+// e2e/src/fixtures.ts
 export const buildUserFixture = (userNumber: 1 | 2) =>
   async ({ browser, thisEnvironment, userTier }, use) => {
     const context = await browser.newContext();
@@ -87,7 +103,7 @@ Each test gets isolated user instances with automatic cleanup.
 POMs use revealing module pattern and adapt to environment configuration:
 
 ```typescript
-// e2e/src/POMs/loginPage.ts:4-28
+// e2e/src/POMs/loginPage.ts
 export const buildLoginPageObject = (page, env, user) => {
   const url = getUrl(env);  // Switches between prod/staging/dev
 
