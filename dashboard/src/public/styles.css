@@ -5,16 +5,37 @@
 }
 
 :root {
-  --primary-color: #0066cc;
-  --success-color: #4caf50;
-  --danger-color: #f44336;
-  --warning-color: #ff9800;
-  --bg-color: #f5f5f5;
-  --card-bg: #ffffff;
-  --text-color: #333;
-  --border-color: #ddd;
-  --log-bg: #1e1e1e;
-  --log-text: #d4d4d4;
+  --primary-color: #059669;
+  --success-color: #16a34a;
+  --danger-color: #b91c1c;
+  --warning-color: #f59e0b;
+  --bg-color: #0f0f0f;
+  --card-bg: #1a1a1a;
+  --text-color: #ffffff;
+  --border-color: #374151;
+  --log-bg: #0f0f0f;
+  --log-text: #e5e7eb;
+
+  /* Semi-transparent colors */
+  --white-alpha-10: rgba(255, 255, 255, 0.1);
+  --white-alpha-20: rgba(255, 255, 255, 0.2);
+  --white-alpha-30: rgba(255, 255, 255, 0.3);
+  --white-alpha-50: rgba(255, 255, 255, 0.5);
+  --white-alpha-90: rgba(255, 255, 255, 0.9);
+
+  /* Shadows */
+  --shadow-light: rgba(0, 0, 0, 0.3);
+  --shadow-medium: rgba(0, 0, 0, 0.4);
+
+  /* Focus colors */
+  --focus-shadow: rgba(5, 150, 105, 0.1);
+
+  /* Common values */
+  --border-radius-sm: 4px;
+  --border-radius-md: 6px;
+  --transition-fast: all 0.2s;
+  --gradient-primary: linear-gradient(to right, var(--bg-color) 0%, var(--primary-color) 100%);
+  --font-mono: 'Consolas', 'Monaco', 'Courier New', monospace;
 }
 
 body {
@@ -25,13 +46,13 @@ body {
 }
 
 header {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
+  background: var(--gradient-primary);
+  color: var(--text-color);
   padding: 1.5rem 2rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 4px var(--shadow-light);
 }
 
 .header-left h1 {
@@ -50,28 +71,28 @@ header {
 }
 
 .tab-btn {
-  background: rgba(255, 255, 255, 0.1);
-  color: white;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: var(--white-alpha-10);
+  color: var(--text-color);
+  border: 1px solid var(--white-alpha-20);
   padding: 0.75rem 1.5rem;
-  border-radius: 6px;
+  border-radius: var(--border-radius-md);
   font-size: 0.875rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: var(--transition-fast);
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
 .tab-btn:hover {
-  background: rgba(255, 255, 255, 0.2);
+  background: var(--white-alpha-20);
   transform: translateY(-1px);
 }
 
 .tab-btn.active {
-  background: rgba(255, 255, 255, 0.9);
-  color: #667eea;
-  border-color: rgba(255, 255, 255, 0.9);
+  background: var(--white-alpha-90);
+  color: var(--primary-color);
+  border-color: var(--white-alpha-90);
 }
 
 .tabs-container {
@@ -91,8 +112,8 @@ header {
 }
 
 .tab-header {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
+  background: var(--gradient-primary);
+  color: var(--text-color);
   padding: 1rem 2rem;
   border-bottom: 1px solid var(--border-color);
   display: flex;
@@ -114,11 +135,11 @@ header {
 }
 
 .status-banner {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
+  background: var(--gradient-primary);
+  color: var(--text-color);
   padding: 1.5rem 2rem;
   margin: -1.5rem -2rem 1.5rem -2rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  border-bottom: 1px solid var(--white-alpha-20);
 }
 
 .status-banner-header {
@@ -155,7 +176,7 @@ header {
 .tests-section {
   background: var(--card-bg);
   border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 8px var(--shadow-light);
   padding: 1.5rem;
   margin-top: 1.5rem;
 }
@@ -169,7 +190,7 @@ header {
 .environment-card {
   background: var(--card-bg);
   border: 1px solid var(--border-color);
-  border-radius: 6px;
+  border-radius: var(--border-radius-md);
   padding: 1rem;
   margin-bottom: 1.5rem;
 }
@@ -189,30 +210,30 @@ header {
 }
 
 .port-badge {
-  background: #e3f2fd;
-  color: #1976d2;
+  background: var(--primary-color);
+  color: var(--text-color);
   padding: 0.25rem 0.75rem;
-  border-radius: 4px;
+  border-radius: var(--border-radius-sm);
   font-size: 0.875rem;
   font-weight: 500;
 }
 
 .status-badge {
   padding: 0.25rem 0.75rem;
-  border-radius: 4px;
+  border-radius: var(--border-radius-sm);
   font-size: 0.875rem;
   font-weight: 600;
   text-transform: uppercase;
 }
 
 .status-badge.running {
-  background: #e8f5e9;
-  color: #2e7d32;
+  background: var(--success-color);
+  color: var(--text-color);
 }
 
 .status-badge.stopped {
-  background: #ffebee;
-  color: #c62828;
+  background: var(--danger-color);
+  color: var(--text-color);
 }
 
 .env-controls {
@@ -231,7 +252,7 @@ header {
   padding: 0.5rem 1rem;
   font-size: 0.875rem;
   font-weight: 600;
-  border-radius: 4px;
+  border-radius: var(--border-radius-sm);
   cursor: pointer;
   list-style: none;
   user-select: none;
@@ -254,37 +275,45 @@ details[open] > .log-header::before {
 }
 
 details[open] > .log-header {
-  border-radius: 4px 4px 0 0;
+  border-radius: var(--border-radius-sm) var(--border-radius-sm) 0 0;
 }
 
 .log-header:hover {
-  background: #2d2d2d;
+  background: var(--border-color);
 }
 
-.log-output {
+.log-output,
+.test-output {
   background: var(--log-bg);
   color: var(--log-text);
   padding: 1rem;
-  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+  font-family: var(--font-mono), monospace;
   font-size: 0.75rem;
   line-height: 1.4;
-  max-height: 200px;
   overflow-y: auto;
-  border-radius: 0 0 4px 4px;
+  border-radius: 0 0 var(--border-radius-sm) var(--border-radius-sm);
   white-space: pre-wrap;
   word-wrap: break-word;
   margin: 0;
 }
 
+.log-output {
+  max-height: 200px;
+}
+
+.test-output {
+  height: 300px;
+}
+
 /* Test Runner */
 .info-notice {
-  background: #e3f2fd;
-  border: 1px solid #2196f3;
-  border-left: 4px solid #2196f3;
+  background: var(--card-bg);
+  border: 1px solid var(--primary-color);
+  border-left: 4px solid var(--primary-color);
   border-radius: 4px;
   padding: 1rem;
   margin-bottom: 1.5rem;
-  color: #0d47a1;
+  color: var(--log-text);
   font-size: 0.875rem;
   line-height: 1.5;
 }
@@ -292,13 +321,13 @@ details[open] > .log-header {
 .info-notice strong {
   display: block;
   margin-bottom: 0.25rem;
-  color: #1565c0;
+  color: var(--primary-color);
 }
 
 .test-controls {
   background: var(--card-bg);
   border: 1px solid var(--border-color);
-  border-radius: 6px;
+  border-radius: var(--border-radius-md);
   padding: 1.5rem;
   margin-bottom: 1.5rem;
 }
@@ -322,15 +351,15 @@ details[open] > .log-header {
   width: 100%;
   padding: 0.75rem;
   border: 1px solid var(--border-color);
-  border-radius: 4px;
+  border-radius: var(--border-radius-sm);
   font-size: 0.875rem;
-  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+  font-family: var(--font-mono), monospace;
 }
 
 .input-text:focus {
   outline: none;
   border-color: var(--primary-color);
-  box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
+  box-shadow: 0 0 0 3px var(--focus-shadow);
 }
 
 .test-status {
@@ -356,32 +385,19 @@ details[open] > .log-header {
 }
 
 .test-output-section > .log-header {
-  border-radius: 4px;
+  border-radius: var(--border-radius-sm);
 }
 
 .test-output-section[open] > .log-header {
-  border-radius: 4px 4px 0 0;
+  border-radius: var(--border-radius-sm) var(--border-radius-sm) 0 0;
 }
 
-.test-output {
-  background: var(--log-bg);
-  color: var(--log-text);
-  padding: 1rem;
-  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
-  font-size: 0.75rem;
-  line-height: 1.4;
-  height: 300px;
-  overflow-y: auto;
-  border-radius: 0 0 4px 4px;
-  white-space: pre-wrap;
-  word-wrap: break-word;
-  margin: 0;
-}
+
 
 .report-section {
   background: var(--card-bg);
   border: 1px solid var(--border-color);
-  border-radius: 6px;
+  border-radius: var(--border-radius-md);
   padding: 1rem;
 }
 
@@ -397,9 +413,9 @@ details[open] > .log-header {
 }
 
 .report-container {
-  background: #f9f9f9;
+  background: var(--bg-color);
   border: 1px solid var(--border-color);
-  border-radius: 4px;
+  border-radius: var(--border-radius-sm);
   height: 500px;
   overflow: hidden;
 }
@@ -415,7 +431,7 @@ details[open] > .log-header {
   align-items: center;
   justify-content: center;
   height: 100%;
-  color: #999;
+  color: var(--border-color);
   font-style: italic;
 }
 
@@ -423,18 +439,18 @@ details[open] > .log-header {
 .btn {
   padding: 0.5rem 1rem;
   border: none;
-  border-radius: 4px;
+  border-radius: var(--border-radius-sm);
   font-size: 0.875rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: var(--transition-fast);
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
 .btn:hover:not(:disabled) {
   transform: translateY(-1px);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 2px 4px var(--shadow-medium);
 }
 
 .btn:active:not(:disabled) {
@@ -448,22 +464,22 @@ details[open] > .log-header {
 
 .btn-start {
   background: var(--success-color);
-  color: white;
+  color: var(--text-color);
 }
 
 .btn-stop {
   background: var(--danger-color);
-  color: white;
+  color: var(--text-color);
 }
 
 .btn-primary {
   background: var(--primary-color);
-  color: white;
+  color: var(--text-color);
 }
 
 .btn-secondary {
   background: #6c757d;
-  color: white;
+  color: var(--text-color);
 }
 
 .btn-large {
@@ -478,13 +494,13 @@ details[open] > .log-header {
 
 .btn-outline {
   background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  color: white;
+  border: 1px solid var(--white-alpha-30);
+  color: var(--text-color);
 }
 
 .btn-outline:hover:not(:disabled) {
-  background: rgba(255, 255, 255, 0.1);
-  border-color: rgba(255, 255, 255, 0.5);
+  background: var(--white-alpha-10);
+  border-color: var(--white-alpha-50);
 }
 
 /* Scrollbar styling */
@@ -494,27 +510,27 @@ details[open] > .log-header {
 }
 
 ::-webkit-scrollbar-track {
-  background: #f1f1f1;
+  background: var(--border-color);
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #888;
+  background: #6b7280;
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #555;
+  background: #9ca3af;
 }
 
 .log-output::-webkit-scrollbar-track,
 .test-output::-webkit-scrollbar-track {
-  background: #2d2d2d;
+  background: var(--bg-color);
 }
 
 .log-output::-webkit-scrollbar-thumb,
 .test-output::-webkit-scrollbar-thumb {
-  background: #555;
+  background: var(--border-color);
 }
 
 /* Responsive */
