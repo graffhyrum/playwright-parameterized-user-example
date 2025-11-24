@@ -15,7 +15,8 @@
     "@types/bun": "^1.3.2",
     "@typescript/native-preview": "^7.0.0-dev.20251117.1",
     "@types/node": "^24.10.1",
-    "arktype": "^2.1.27"
+    "arktype": "^2.1.27",
+    "playwright": "^1.56.1"
   },
   "trustedDependencies": [
     "@typescript/native-preview"
@@ -36,14 +37,15 @@
     "vet": "bun run --filter '*' vet"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.3.6",
-    "@playwright/test": "^1.56.1",
-    "@types/bun": "^1.3.2"
+    "@biomejs/biome": "catalog:",
+    "@playwright/test": "catalog:",
+    "@types/bun": "catalog:"
   },
   "peerDependencies": {
-    "@typescript/native-preview": "^7.0.0-dev.20251117.1"
+    "@typescript/native-preview": "^7.0.0-dev.20251124.1"
   },
   "dependencies": {
-    "arktype": "^2.1.27"
+    "arktype": "catalog:",
+    "playwright": "catalog:"
   }
 }
