@@ -5,6 +5,18 @@
 
 Portfolio project showcasing advanced Playwright patterns: dynamic test matrix generation, custom fixtures, and environment-aware Page Object Models.
 
+## Apps 
+
+### Dashboard Control Panel
+![Dashboard](docs/screenshots/dashboard.png)
+
+The web-based control panel provides real-time management of demo-app instances and test execution.
+
+### Demo Application (Production)
+![Demo App](docs/screenshots/demo-app.png)
+
+The demo System Under Test with user authentication and tier-specific features.
+
 ## Why This Project
 
 Test automation suites grow configuration exponentially as teams add browsers, environments, and user tiers. Hardcoding project matrices means every change touches multiple files. This project demonstrates a **programmatic, composable approach** where:
@@ -13,9 +25,7 @@ Test automation suites grow configuration exponentially as teams add browsers, e
 - User provisioning is handled by fixtures with explicit lifecycle hooks — tests are fully isolated
 - Page objects adapt to environment without conditional sprawl
 
-**See [docs/interview-pack.md](docs/interview-pack.md)** for full architectural decisions, trade-offs, and interview angles.
-
-## Quick Start
+See [dashboard/README.md](dashboard/README.md) for details.
 
 ```bash
 bun install
@@ -48,42 +58,37 @@ export const test = base.extend<Fixtures>({
 });
 ```
 
-[Full implementation →](src/fixtures.ts)
 
 ### 3. Environment-Aware Page Objects
 
 POMs use revealing module pattern and adapt to environment configuration:
 
-```typescript
-// Factory function returns explicit API surface
-export const buildLoginPageObject = (page, env, user) => {
-  return {
-    login: async () => { /* env-aware login */ },
-    assertTier: async (expectedTier) => { /* verify tier */ },
-  };
-};
 ```
-
-[Full implementation →](src/POMs/loginPage.ts)
 
 ## Architecture
 
-```
-├── src/
-│   ├── getProjects.ts      # Project matrix generation (36 configs)
-│   ├── fixtures.ts         # Custom fixtures + user provisioning
-│   ├── userManager.ts      # User lifecycle management
-│   ├── types.ts            # Type definitions
-│   ├── POMs/
-│   │   └── loginPage.ts    # Revealing module POM
-│   └── demoServer/
-│       └── index.ts        # Demo SUT
-├── tests/
-│   └── example.spec.ts     # Example test
-├── playwright.config.ts
-└── docs/
-    └── interview-pack.md   # Architecture decisions + interview angles
-```
+### E2E Test Framework (`e2e/`)
+
+- **[playwright.config.ts](e2e/playwright.config.ts)** - Matrix configuration entry point
+- **[src/getProjects.ts](e2e/src/getProjects.ts)** - Project generation logic (36 configs)
+- **[src/fixtures.ts](e2e/src/fixtures.ts)** - Custom fixtures and test extension
+- **[src/userManager.ts](e2e/src/userManager.ts)** - User lifecycle management
+- **[src/POMs/](e2e/src/POMs/)** - Page object models
+- **[src/types.ts](e2e/src/types.ts)** - Type definitions
+
+### Demo Application (`demo-app/`)
+
+- **[src/index.ts](demo-app/src/index.ts)** - Bun web server with multi-env support
+- Supports production/staging/development environments
+- Pre-configured test users (free/paid tiers)
+- Cookie-based authentication
+
+### Dashboard (`dashboard/`)
+
+- **[src/index.ts](dashboard/src/index.ts)** - Bun server with API endpoints
+- **[src/processManager.ts](dashboard/src/processManager.ts)** - Demo-app process lifecycle management
+- **[src/testRunner.ts](dashboard/src/testRunner.ts)** - Playwright test execution manager
+- **[src/public/](dashboard/src/public/)** - HTMX-based SPA with real-time updates
 
 ## Key Patterns
 
@@ -93,3 +98,16 @@ export const buildLoginPageObject = (page, env, user) => {
 ✓ Environment-driven test data  
 ✓ Isolated user contexts per test  
 ✓ Cookie-based auth with explicit lifecycle
+✓ Monorepo structure with demo SUT
+
+## Test Users
+
+The demo app includes pre-configured users for testing:
+
+- **Free tier**: `user@free.com` / `password123`
+- **Paid tier**: `user@paid.com` / `password123`
+
+Access the demo app at:
+- Production: `http://localhost:3000`
+- Staging: `http://localhost:3001`
+- Development: `http://localhost:3002`
