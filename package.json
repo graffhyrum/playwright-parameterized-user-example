@@ -36,6 +36,7 @@
     "dev:app:development": "cd demo-app && bun run dev:development",
     "test:ui": "cd e2e && bun run test:ui",
     "test:report": "cd e2e && bun run test:report",
+    "test:e2e": "bun run scripts/test-e2e.ts",
     "format": "biome format --write .",
     "vet": "bun run --filter '*' vet"
   },
@@ -45,6 +46,6 @@
     "@types/bun": "^1.3.12"
   },
   "peerDependencies": {
-    "@typescript/native-preview": "^7.0.0-dev.20251124.1"
+    "@typescript/native-preview": "^7.0.0-dev.20260415.1"
   }
 }

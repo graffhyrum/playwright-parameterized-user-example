@@ -20,9 +20,4 @@ export default defineConfig({
 
   /* Configure projects for major browsers */
   projects: getProjects(),
-
-  webServer: {
-    command: 'bun demoServer/index.ts',
-    url: serverURL,
-  },
 })
