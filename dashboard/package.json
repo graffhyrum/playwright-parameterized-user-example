@@ -9,7 +9,7 @@
     "lint:fix": "biome check --write .",
     "format": "biome format --write .",
     "fix": "biome check --write .",
-    "vet": "tsc --noEmit && biome check ."
+    "vet": "bunx tsc --noEmit && bunx biome check ."
   },
   "devDependencies": {
     "@biomejs/biome": "catalog:",
@@ -17,7 +17,8 @@
     "@types/node": "catalog:"
   },
   "dependencies": {
-    "@monorepo/utils": "workspace:*"
+    "@monorepo/utils": "workspace:*",
+    "arktype": "catalog:"
   },
   "peerDependencies": {
     "@typescript/native-preview": "catalog:"
