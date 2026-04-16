@@ -1,6 +1,5 @@
 {
-  "$schema": "https://biomejs.dev/schemas/2.0.6/schema.json",
-    "enabled": true,
+  "$schema": "https://biomejs.dev/schemas/2.4.12/schema.json",
   "vcs": {
     "enabled": true,
     "clientKind": "git",
@@ -37,32 +36,25 @@
       }
     }
   },
-      },
   "files": {
     "ignoreUnknown": false,
-    "ignore": [],
-    "include": [
+    "includes": [
       "**/*.js",
       "**/*.ts",
       "**/*.jsx",
       "**/*.tsx",
-      "**/*.json"
-    ],
-    "ignore": [
-      "**/node_modules/**",
-      "**/dist/**",
-      "**/build/**",
-      "**/.next/**",
-      "**/coverage/**",
-      "**/*.d.ts",
-      "**/playwright-report/**",
-      "**/test-results/**",
-      "**/playwright/.cache/**"
+      "**/*.json",
+      "!**/node_modules",
+      "!**/dist",
+      "!**/build",
+      "!**/.next",
+      "!**/coverage",
+      "!**/*.d.ts",
+      "!**/playwright-report",
+      "!**/test-results",
+      "!**/playwright/.cache"
     ]
   },
-  },
-  "formatter": {
-    "enabled": true,
   "formatter": {
     "enabled": true,
     "indentStyle": "space",
@@ -71,10 +63,7 @@
     "lineWidth": 100,
     "attributePosition": "auto"
   },
-  "organizeImports": {
-    "enabled": true
-  },
-  },
+  "assist": { "actions": { "source": { "organizeImports": "on" } } },
   "javascript": {
     "formatter": {
       "quoteStyle": "single",
@@ -87,25 +76,5 @@
       "bracketSameLine": false,
       "attributePosition": "auto"
     }
-  },
-  "files": {
-    "include": [
-      "**/*.js",
-      "**/*.ts",
-      "**/*.jsx",
-      "**/*.tsx",
-      "**/*.json"
-    ],
-    "ignore": [
-      "**/node_modules/**",
-      "**/dist/**",
-      "**/build/**",
-      "**/.next/**",
-      "**/coverage/**",
-      "**/*.d.ts",
-      "**/playwright-report/**",
-      "**/test-results/**",
-      "**/playwright/.cache/**"
-    ]
   }
 }

@@ -3,10 +3,10 @@
  * Simple web application for demonstrating Playwright parameterized testing
  */
 
-import { type Environment, environments, getDemoAppPort } from '@monorepo/utils'
+import { type Environment, getDemoAppPort } from '@monorepo/utils'
 
 const ENV = (process.env.NODE_ENV || 'development') as Environment
-const PORT = process.env.PORT ? Number.parseInt(process.env.PORT) : getDemoAppPort(ENV)
+const PORT = process.env.PORT ? Number.parseInt(process.env.PORT, 10) : getDemoAppPort(ENV)
 
 // Simple user database (in-memory for demo)
 const users = new Map<string, { name: string; tier: 'free' | 'paid'; password: string }>()

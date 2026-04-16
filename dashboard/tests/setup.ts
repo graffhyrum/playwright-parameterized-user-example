@@ -1,5 +1,5 @@
 import { environments, getDashboardUrl } from '@monorepo/utils'
-import { type APIRequestContext, type Page, expect } from '@playwright/test'
+import { type APIRequestContext, expect, type Page } from '@playwright/test'
 
 const TIMEOUT = 30000
 

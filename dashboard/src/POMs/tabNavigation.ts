@@ -1,4 +1,4 @@
-import { type Page, expect } from '@playwright/test'
+import { expect, type Page } from '@playwright/test'
 import type { ComponentFactory, ComponentObject } from './pomTemplate'
 
 export type TabName = 'demo-apps' | 'tests' | 'reports'

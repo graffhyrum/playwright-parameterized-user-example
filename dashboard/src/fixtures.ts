@@ -8,7 +8,6 @@ import { buildReportsPage } from './POMs/reportsPage.ts'
 import { buildTabNavigation } from './POMs/tabNavigation.ts'
 import { buildTestsPage } from './POMs/testsPage.ts'
 import { cleanupAll, waitForDashboardReady } from './setup.ts'
-import type { DashboardFixture } from './types.ts'
 
 type PageLinkKeys = 'dashboard' | 'demoApps' | 'tests' | 'reports'
 

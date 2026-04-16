@@ -1,11 +1,12 @@
 #!/usr/bin/env bun
+
 /**
  * Script to run demo apps for all environments, execute e2e tests, and clean up
  */
 
+import { existsSync } from 'node:fs'
+import { join } from 'node:path'
 import { spawn } from 'bun'
-import { existsSync } from 'fs'
-import { join } from 'path'
 
 const environments = ['production', 'staging', 'development'] as const
 const demoAppDir = join(process.cwd(), 'demo-app')
@@ -34,7 +35,7 @@ async function waitForPort(port: number, timeout = 10000): Promise<boolean> {
     } catch {
       // Port not ready yet
     }
-    await new Promise(resolve => setTimeout(resolve, 500))
+    await new Promise((resolve) => setTimeout(resolve, 500))
   }
 
   return false
@@ -52,7 +53,7 @@ async function runDemo() {
     console.log(`📦 Starting ${env} environment on port ${port}...`)
 
     const proc = spawn({
-      cmd: ['bun', 'run', `env.ts`, env],
+      cmd: ['bun', 'run', 'env.ts', env],
       cwd: demoAppDir,
       stdout: 'inherit',
       stderr: 'inherit',

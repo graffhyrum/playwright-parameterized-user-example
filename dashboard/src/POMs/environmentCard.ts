@@ -1,5 +1,5 @@
 import { getDemoAppPort } from '@monorepo/utils'
-import { type Page, expect } from '@playwright/test'
+import { expect, type Page } from '@playwright/test'
 import type { DemoEnvironment } from '../types.ts'
 import type { ComponentFactory, ComponentObject } from './pomTemplate'
 

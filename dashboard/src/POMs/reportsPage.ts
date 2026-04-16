@@ -1,4 +1,4 @@
-import { type Page, expect } from '@playwright/test'
+import { expect, type Page } from '@playwright/test'
 import type { PageObject, PomFactory } from './pomTemplate'
 
 export function buildReportsPageObject(page: Page) {

@@ -1,25 +1,25 @@
 import { type Environment, environments } from '@monorepo/utils'
 import type { Page } from '@playwright/test'
+import type { TestFixtures } from './fixtures'
 import type { DashboardPageObject } from './POMs/dashboardPage'
 import type { DemoAppsPageObject } from './POMs/demoAppsPage'
 import type { EnvironmentCardComponent } from './POMs/environmentCard'
 import type { ReportsPageObject } from './POMs/reportsPage'
 import type { TabNavigationComponent } from './POMs/tabNavigation'
 import type { TestsPageObject } from './POMs/testsPage'
-import type { TestFixtures } from './fixtures'
 
 // Re-export POM types for convenience
 export type {
   DashboardPageObject,
   DemoAppsPageObject,
-  TestsPageObject,
+  EnvironmentCardComponent,
   ReportsPageObject,
   TabNavigationComponent,
-  EnvironmentCardComponent,
+  TestsPageObject,
 }
 
 // Re-export utils types for convenience
-export { environments, type Environment }
+export { type Environment, environments }
 
 // Dashboard environment - simpler than e2e since dashboard is single environment
 export type DashboardEnvironment = 'dashboard'

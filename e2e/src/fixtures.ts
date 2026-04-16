@@ -1,7 +1,7 @@
 import type { Browser, PlaywrightTestProject } from '@playwright/test'
 // fixtures
 import { test as base } from 'playwright/test'
-import { type LoginPageObject, buildLoginPageObject } from './POMs/loginPage.ts'
+import { buildLoginPageObject, type LoginPageObject } from './POMs/loginPage.ts'
 import type { TestableEnvironment, UserFixture, UserTier } from './types.ts'
 import { getUserManager } from './userManager.ts'
 
