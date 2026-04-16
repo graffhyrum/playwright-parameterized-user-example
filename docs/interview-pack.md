@@ -12,6 +12,8 @@ A portfolio-quality E2E testing framework demonstrating three patterns that matt
 2. **User provisioning fixtures** — isolated, self-cleaning user contexts per test via Playwright's fixture system
 3. **Environment-aware POMs** — page objects that adapt behavior based on the target environment (prod/staging/dev)
 
+The monorepo also includes a **dashboard control panel** (Bun + HTMX + SSE) for managing demo app instances and monitoring test execution in real time.
+
 ## Architecture Decisions
 
 ### Why revealing module pattern for POMs (not ES6 classes)?
@@ -33,6 +35,10 @@ Cookie auth is the simplest signal for "logged in vs. not" without external depe
 
 Explicit `userManager.delete(user)` makes the cleanup visible and auditable. When debugging test pollution, you can trace exactly what was created and what was deleted.
 
+### Why Bun over Node?
+
+Bun's native TypeScript execution (no build step), faster `bun install`, and bundled process management made it ideal for running the multi-environment demo and dashboard control panel in the same runtime.
+
 ## Metrics
 
 | Metric | Value |
@@ -40,7 +46,8 @@ Explicit `userManager.delete(user)` makes the cleanup visible and auditable. Whe
 | Configurations generated | 36 (6 browsers × 2 tiers × 3 envs) |
 | User context isolation | Per-test, auto-cleanup via fixture teardown |
 | Environments supported | production, staging, development |
-| Demo server startup | Via `webServer` config in playwright.config.ts |
+| Demo app instances | 3 (one per environment) |
+| Dashboard updates | Real-time via Server-Sent Events |
 
 ## Trade-offs
 
@@ -49,29 +56,45 @@ Explicit `userManager.delete(user)` makes the cleanup visible and auditable. Whe
 | Cookie-based auth | OAuth, JWT, SSO | Simplest signal for logged-in state without external deps |
 | Hardcoded test users | Real user provisioning via API | Isolates test framework from user service complexity |
 | Explicit fixture teardown | Playwright's `auto-cleanup` hooks | Makes lifecycle auditable and debuggable |
-| Single demo server | Multi-instance environments | The `thisEnvironment` fixture parameter handles env parity |
+| HTMX + SSE for dashboard | React + WebSockets | HTMX avoids a JS bundle; SSE avoids a WebSocket server |
 
 ## What I'd Do Differently
 
 1. **Add a shared test data store** — currently each environment has its own hardcoded users. A shared PostgreSQL or SQLite test data store with per-environment schemas would be more realistic.
 2. **Parameterize the matrix from a config file** — `getProjects.ts` is hardcoded. Extracting it to `CONFIG.ts` would make the project more maintainable.
 3. **Add visual regression testing** — Playwright supports screenshot diffing natively. Adding this would round out the testing types demonstrated.
-4. **Add a dashboard** — A web UI for starting/stopping demo app instances and watching test output would demonstrate infrastructure thinking beyond test code.
 
 ## Interview Angles
 
 - **"Tell me about a time you reduced test flakiness."** → The `userManager` pattern and isolated contexts prevent cross-test pollution, which is a primary cause of flake.
 - **"How do you design test data?"** → The `userManager.create/delete` lifecycle and tier-based users show a deliberate approach to fixture data.
 - **"How do you handle multi-environment testing?"** → The `getProjects.ts` matrix and environment-aware POMs show a structured approach to environment parity.
-- **"What's your approach to test reporting?"** → Playwright HTML reports show investment in making test results actionable.
+- **"What's your approach to test reporting?"** → The dashboard + Playwright HTML reports shows investment in making test results actionable.
 - **"Why did you choose the revealing module pattern over class-based POMs?"** → The interview-pack explains the reasoning and trade-offs.
 
 ## Live Demo
 
 ```bash
 bun install
-bun run test           # starts demo server + runs tests
-bunx playwright test   # run with Playwright directly
+bun run runDemo      # starts all 3 envs + runs full test suite + cleans up
+bun run dashboard    # starts dashboard at http://localhost:4000
+bun run test         # run e2e tests directly
+```
+
+## Monorepo Structure
+
+```
+├── e2e/              # Playwright test framework
+│   ├── src/          # Test utilities, fixtures, POMs
+│   ├── tests/        # Test specs
+│   └── playwright.config.ts
+├── demo-app/         # Demo System Under Test (SUT)
+│   └── src/          # Bun-based web application
+├── dashboard/        # Control panel SPA
+│   └── src/          # Bun server with HTMX UI
+├── scripts/          # Utility scripts
+├── utils/            # Shared utilities
+└── runDemo.ts        # Orchestrates full demo run
 ```
 
 ## Related Work

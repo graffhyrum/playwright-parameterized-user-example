@@ -25,7 +25,8 @@ Test automation suites grow configuration exponentially as teams add browsers, e
 - User provisioning is handled by fixtures with explicit lifecycle hooks — tests are fully isolated
 - Page objects adapt to environment without conditional sprawl
 
-See [dashboard/README.md](dashboard/README.md) for details.
+See [dashboard/README.md](dashboard/README.md) for dashboard details.  
+See [docs/interview-pack.md](docs/interview-pack.md) for full architectural decisions, trade-offs, and interview angles.
 
 ```bash
 bun install
