@@ -26,7 +26,7 @@ Test automation suites grow configuration exponentially as teams add browsers, e
 - Page objects adapt to environment without conditional sprawl
 
 See [dashboard/README.md](dashboard/README.md) for dashboard details.  
-See [docs/interview-pack.md](docs/interview-pack.md) for full architectural decisions, trade-offs, and interview angles.
+See [career-ops interview-pack](https://github.com/graffhyrum/career-ops/blob/main/data/projects/playwright-parameterized-user-example-interview-pack.md) for full architectural decisions, trade-offs, and interview angles.
 
 ```bash
 bun install
