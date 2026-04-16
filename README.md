@@ -25,8 +25,7 @@ Test automation suites grow configuration exponentially as teams add browsers, e
 - User provisioning is handled by fixtures with explicit lifecycle hooks — tests are fully isolated
 - Page objects adapt to environment without conditional sprawl
 
-See [dashboard/README.md](dashboard/README.md) for dashboard details.  
-See [career-ops interview-pack](https://github.com/graffhyrum/career-ops/blob/main/data/projects/playwright-parameterized-user-example-interview-pack.md) for full architectural decisions, trade-offs, and interview angles.
+See [dashboard/README.md](dashboard/README.md) for dashboard details.
 
 ```bash
 bun install
