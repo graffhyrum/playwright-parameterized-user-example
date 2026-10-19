@@ -2,12 +2,13 @@
   "typescript": "@typescript/native-preview",
   "compilerOptions": {
     // Environment setup & latest features
-    "lib": ["esnext"],
+    "lib": ["esnext", "dom"],
     "target": "ESNext",
     "module": "ESNext",
     "moduleDetection": "force",
     "jsx": "react-jsx",
     "allowJs": true,
+    "types": ["node"],
 
     // Bundler mode
     "moduleResolution": "bundler",
