@@ -15,6 +15,7 @@
     "@typescript/native-preview": "catalog:"
   },
   "scripts": {
+    "typecheck": "bun check",
     "dev": "bun run src/index.ts",
     "test": "bunx playwright test",
     "test:ui": "bunx playwright test --ui",
@@ -23,6 +24,6 @@
     "lint": "biome check .",
     "lint:fix": "biome check --write .",
     "format": "biome format --write .",
-    "vet": "bun check && bun format && bun lint"
+    "vet": "bun typecheck && bun format && bun lint"
   }
 }

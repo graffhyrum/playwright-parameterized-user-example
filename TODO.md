@@ -1,3 +1,3 @@
-- [ ] Add a Bun frontend to exersize the example tests against
+- [ ] Add a Bun frontend to exercise the example tests against
 - [ ] Update readme
 - 
