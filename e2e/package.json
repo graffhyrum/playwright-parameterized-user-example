@@ -5,7 +5,8 @@
   "devDependencies": {
     "@biomejs/biome": "catalog:",
     "@playwright/test": "catalog:",
-    "@types/bun": "catalog:"
+    "@types/bun": "catalog:",
+    "@types/node": "catalog:"
   },
   "dependencies": {
     "@monorepo/utils": "workspace:*"
@@ -22,6 +23,6 @@
     "lint": "biome check .",
     "lint:fix": "biome check --write .",
     "format": "biome format --write .",
-    "vet": "bunx tsc --noEmit && bunx biome check ."
+    "vet": "bun check && bun format && bun lint"
   }
 }
