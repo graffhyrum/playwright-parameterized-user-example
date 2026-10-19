@@ -17,7 +17,7 @@ export type ComponentObject = {
 export type PageObject = ComponentObject
 
 /*
- * Generic function type, consolidated here to minimize biome escape hatches
+ * Generic function type, consolidated here to minimize oxlint escape hatches
  */
 export type Fn<returns = unknown, args extends readonly any[] = readonly any[]> = (
   ...args: args

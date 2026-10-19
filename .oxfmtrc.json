@@ -1,0 +1,37 @@
+{
+  "$schema": "./node_modules/oxfmt/configuration_schema.json",
+  "useTabs": false,
+  "tabWidth": 2,
+  "printWidth": 100,
+  "endOfLine": "lf",
+  "singleQuote": true,
+  "jsxSingleQuote": false,
+  "quoteProps": "as-needed",
+  "trailingComma": "es5",
+  "semi": false,
+  "arrowParens": "always",
+  "bracketSameLine": false,
+  "bracketSpacing": true,
+  "singleAttributePerLine": false,
+  "sortImports": {
+    "newlinesBetween": false
+  },
+  "sortPackageJson": false,
+  "ignorePatterns": [
+    "**/node_modules",
+    "**/dist",
+    "**/build",
+    "**/.next",
+    "**/coverage",
+    "**/*.d.ts",
+    "**/playwright-report",
+    "**/test-results",
+    "**/playwright/.cache",
+    "**/*.md",
+    "**/*.html",
+    "**/*.css",
+    "**/*.cjs",
+    "**/*.yml",
+    "**/*.yaml"
+  ]
+}

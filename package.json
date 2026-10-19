@@ -12,12 +12,13 @@
     "utils"
   ],
   "catalog": {
-    "@biomejs/biome": "^2.5.15",
     "@playwright/test": "^1.64.1",
     "@types/bun": "^1.4.3",
     "@typescript/native-preview": "^7.0.0-dev.20260707.2",
     "@types/node": "^26.6.5",
     "arktype": "^2.2.8",
+    "oxfmt": "^0.74.0",
+    "oxlint": "^1.89.0",
     "playwright": "^1.64.1"
   },
   "trustedDependencies": [
@@ -26,8 +27,8 @@
   "scripts": {
     "dev": "bun --watch src/demoServer/index.ts",
     "test": "bunx playwright test",
-    "lint": "bunx biome format --write .",
-    "fix": "bunx biome check --write .",
+    "lint": "bunx oxlint .",
+    "fix": "bunx oxlint --fix . && bunx oxfmt --write .",
     "runDemo": "bun run runDemo.ts",
     "dashboard": "bun run --filter '@monorepo/dashboard' dev",
     "dev:app": "cd demo-app && bun run dev",
@@ -37,13 +38,14 @@
     "test:ui": "cd e2e && bun run test:ui",
     "test:report": "cd e2e && bun run test:report",
     "test:e2e": "bun run scripts/test-e2e.ts",
-    "format": "biome format --write .",
+    "format": "oxfmt --write .",
     "vet": "bun run --filter '*' vet"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.5.15",
     "@playwright/test": "^1.64.1",
-    "@types/bun": "^1.4.3"
+    "@types/bun": "^1.4.3",
+    "oxfmt": "^0.74.0",
+    "oxlint": "^1.89.0"
   },
   "peerDependencies": {
     "@typescript/native-preview": "^7.0.0-dev.20260707.2"

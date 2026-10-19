@@ -30,7 +30,9 @@ async function takeScreenshot(url: string, filename: string): Promise<void> {
 
 async function main(): Promise<void> {
   console.log('🚀 Starting screenshot capture...')
-  console.log('⚠️  Make sure dashboard and demo-app are running on ports 4000 and 3000 respectively')
+  console.log(
+    '⚠️  Make sure dashboard and demo-app are running on ports 4000 and 3000 respectively'
+  )
   console.log('   Start them with: bun run dashboard (in one terminal)')
   console.log('                cd demo-app && bun run dev:production (in another terminal)')
   console.log('')
