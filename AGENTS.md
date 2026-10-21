@@ -25,4 +25,5 @@ Each package has its own `AGENTS.md`. Read the one for the package you change be
 - Install: `bun install` from the root.
 - Verify a change: `bun vet`. It runs typecheck, format, and lint in every workspace. Run it before you report a change done.
 - Full e2e matrix: `bun run test:e2e`. It starts all three demo-app environments, runs the suite, then stops them. Source: `scripts/test-e2e.ts`.
-- Do not run `bun run test` at the root. The root has no Playwright config, so Playwright loads test files from the other packages and fails. Run a single package's tests from that package (see its doc).
+- E2e suite from the root: `bun run test`. Single project: `bun run test -- --project="chromium-free production"`. The demo apps must run first, unless you use `bun run test:e2e`.
+- Run the dashboard's own specs from `dashboard/` (see its doc).
