@@ -2,6 +2,9 @@
 /**
  * Proves that runDemo.ts leaves no demo-app server listening on 3000-3002.
  * The success case runs the real e2e suite once; the other cases abort it early.
+ *
+ * Linux only (uses ss and /proc) and deliberately not part of vet or CI: CI runs runDemo
+ * directly, and the SIGINT case would overwrite the Playwright report CI uploads.
  */
 
 import { readlinkSync } from 'node:fs'
@@ -85,18 +88,22 @@ async function runDemoToExit(testCase: Case): Promise<number> {
 async function relayOutput(stream: ReadableStream<Uint8Array>): Promise<void> {
   const decoder = new TextDecoder()
   let seen = false
+  let recent = ''
   let resolveReady: () => void = () => {}
   const ready = new Promise<void>((resolve) => {
     resolveReady = resolve
   })
   void (async () => {
     for await (const chunk of stream) {
-      const text = decoder.decode(chunk)
+      const text = decoder.decode(chunk, { stream: true })
       process.stdout.write(text)
-      if (!seen && text.includes(READY_MARKER)) {
+      // The marker can be split across chunks, so search a rolling tail
+      const window = recent + text
+      if (!seen && window.includes(READY_MARKER)) {
         seen = true
         resolveReady()
       }
+      recent = window.slice(-READY_MARKER.length)
     }
     resolveReady()
   })()
