@@ -29,7 +29,7 @@ const proc = spawn({
   },
   stdout: 'inherit',
   stderr: 'inherit',
-  stdin: 'inherit',
+  stdin: 'ignore',
 })
 
 // Forward termination to the server: without this, killing this wrapper orphans it

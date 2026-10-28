@@ -21,14 +21,15 @@ const EXIT_TIMEOUT_MS = 120_000
 type Case = {
   name: string
   args: string[]
-  expectsSuccess: boolean
-  interruptWhenReady?: boolean
+  expectedExitCode: number
+  signalWhenReady?: 'SIGINT' | 'SIGHUP'
 }
 
 const CASES: Case[] = [
-  { name: 'success path', args: [], expectsSuccess: true },
-  { name: 'test-failure path', args: MATCHES_NOTHING, expectsSuccess: false },
-  { name: 'SIGINT during tests', args: [], expectsSuccess: false, interruptWhenReady: true },
+  { name: 'success path', args: [], expectedExitCode: 0 },
+  { name: 'test-failure path', args: MATCHES_NOTHING, expectedExitCode: 1 },
+  { name: 'SIGINT during tests', args: [], expectedExitCode: 130, signalWhenReady: 'SIGINT' },
+  { name: 'SIGHUP during tests', args: [], expectedExitCode: 129, signalWhenReady: 'SIGHUP' },
 ]
 
 const failures = await main()
@@ -60,9 +61,8 @@ async function runCase(testCase: Case): Promise<string[]> {
 }
 
 function exitCodeFailures(testCase: Case, exitCode: number): string[] {
-  const succeeded = exitCode === 0
-  if (succeeded === testCase.expectsSuccess) return []
-  return [`${testCase.name}: unexpected runDemo exit code ${exitCode}`]
+  if (exitCode === testCase.expectedExitCode) return []
+  return [`${testCase.name}: runDemo exit code ${exitCode}, expected ${testCase.expectedExitCode}`]
 }
 
 async function runDemoToExit(testCase: Case): Promise<number> {
@@ -74,10 +74,10 @@ async function runDemoToExit(testCase: Case): Promise<number> {
   })
   const watchdog = setTimeout(() => child.kill('SIGKILL'), EXIT_TIMEOUT_MS)
   const sawReady = relayOutput(child.stdout)
-  if (testCase.interruptWhenReady) {
+  if (testCase.signalWhenReady) {
     await sawReady
     await Bun.sleep(SIGINT_DELAY_MS)
-    child.kill('SIGINT')
+    child.kill(testCase.signalWhenReady)
   }
   const exitCode = await child.exited
   clearTimeout(watchdog)
@@ -103,8 +103,9 @@ async function relayOutput(stream: ReadableStream<Uint8Array>): Promise<void> {
         seen = true
         resolveReady()
       }
-      recent = window.slice(-READY_MARKER.length)
+      recent = window.slice(-(READY_MARKER.length - 1))
     }
+    process.stdout.write(decoder.decode())
     resolveReady()
   })()
   return ready

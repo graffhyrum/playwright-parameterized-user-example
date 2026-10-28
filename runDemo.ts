@@ -15,7 +15,7 @@ const STOP_TIMEOUT_MS = 5000
 
 type Proc = ReturnType<typeof spawn>
 type ServerProcess = { proc: Proc; env: string; port: number }
-type StopSignal = 'SIGINT' | 'SIGTERM'
+type StopSignal = 'SIGINT' | 'SIGTERM' | 'SIGHUP'
 
 // Extra CLI args go to Playwright, e.g. `bun run runDemo --grep login`
 const playwrightArgs = process.argv.slice(2)
@@ -69,7 +69,10 @@ async function runDemo() {
 
     const testExitCode = await testProc.exited
 
-    if (testExitCode === 0) {
+    // After a signal the signal exit code (set in handleSignal) wins over the test exit code
+    if (stopping) {
+      console.log('🛑 Interrupted, tests stopped')
+    } else if (testExitCode === 0) {
       console.log('✅ All tests passed!')
     } else {
       console.log('❌ Some tests failed')
@@ -90,8 +93,13 @@ async function runDemo() {
 
 installSignalHandlers()
 
-runDemo().catch((error) => {
+runDemo().catch(async (error) => {
   console.error('❌ Unexpected error:', error)
+  try {
+    await stopAll()
+  } catch (stopError) {
+    console.error('❌ Failed to stop servers:', stopError)
+  }
   process.exit(1)
 })
 
@@ -111,7 +119,8 @@ async function startServers(): Promise<boolean> {
       cwd: demoAppDir,
       stdout: 'inherit',
       stderr: 'inherit',
-      stdin: 'inherit',
+      // No stdin: a detached server in a background group would hit SIGTTIN on a terminal read
+      stdin: 'ignore',
       detached: true,
     })
 
@@ -158,7 +167,9 @@ async function timedOutWaiting(proc: Proc, ms: number): Promise<boolean> {
 }
 
 // A negative pid addresses the whole process group (wrapper + server)
+// Skips exited processes: their pid (and group) could already belong to someone else
 function killGroup(proc: Proc): void {
+  if (hasExited(proc)) return
   try {
     process.kill(-proc.pid, 'SIGKILL')
   } catch {
@@ -166,13 +177,18 @@ function killGroup(proc: Proc): void {
   }
 }
 
-// Ctrl-C / SIGTERM: stop the tests and let runDemo's finally stop the servers.
+function hasExited(proc: Proc): boolean {
+  return proc.exitCode !== null || proc.signalCode !== null
+}
+
+// Ctrl-C / SIGTERM / SIGHUP: stop the tests and let runDemo's finally stop the servers.
 // Before the tests start there is nothing to wait for, so stop the servers and exit.
 // A second signal means "now": kill everything and exit.
 function installSignalHandlers(): void {
   for (const [signal, code] of [
     ['SIGINT', 130],
     ['SIGTERM', 143],
+    ['SIGHUP', 129],
   ] as const) {
     process.on(signal, () => handleSignal(signal, code))
   }
@@ -188,13 +204,15 @@ function handleSignal(signal: StopSignal, code: number): void {
 
 // A terminal sends Ctrl-C to the whole foreground group, so Playwright already has its
 // SIGINT, and a second one makes it force quit. Forward SIGINT only when stdin is no terminal.
+// So with a TTY stdin, a `kill -INT <pid>` from elsewhere is not forwarded: the tests run to
+// the end before cleanup. SIGHUP is forwarded as SIGTERM, which Playwright is known to handle.
 function forwardToTests(tests: Proc, signal: StopSignal): void {
   if (signal === 'SIGINT' && process.stdin.isTTY) return
-  tests.kill(signal)
+  tests.kill(signal === 'SIGHUP' ? 'SIGTERM' : signal)
 }
 
 function forceExit(code: number): never {
   for (const { proc } of processes) killGroup(proc)
-  testProc?.kill('SIGKILL')
+  if (testProc && !hasExited(testProc)) testProc.kill('SIGKILL')
   process.exit(code)
 }
