@@ -2,7 +2,8 @@
   "typescript": "@typescript/native-preview",
   "compilerOptions": {
     // Environment setup & latest features
-    "lib": ["esnext"],
+    "lib": ["esnext", "dom"],
+    "types": ["bun-types"],
     "target": "ESNext",
     "module": "ESNext",
     "moduleDetection": "force",
