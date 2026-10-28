@@ -3,7 +3,7 @@
   "compilerOptions": {
     // Environment setup & latest features
     "lib": ["esnext", "dom"],
-    "types": ["bun-types"],
+    "types": ["bun"],
     "target": "ESNext",
     "module": "ESNext",
     "moduleDetection": "force",
