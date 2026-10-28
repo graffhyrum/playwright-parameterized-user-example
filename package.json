@@ -37,6 +37,7 @@
     "test:ui": "cd e2e && bun run test:ui",
     "test:report": "cd e2e && bun run test:report",
     "test:e2e": "bun run scripts/test-e2e.ts",
+    "check:cleanup": "bun run scripts/check-rundemo-cleanup.ts",
     "format": "biome format --write .",
     "vet": "bun run --filter '*' vet"
   },
