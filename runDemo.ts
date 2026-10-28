@@ -11,6 +11,14 @@ import { spawn } from 'bun'
 const environments = ['production', 'staging', 'development'] as const
 const demoAppDir = join(process.cwd(), 'demo-app')
 const e2eDir = join(process.cwd(), 'e2e')
+const STOP_TIMEOUT_MS = 5000
+
+type ServerProcess = { proc: ReturnType<typeof spawn>; env: string; port: number }
+
+// Extra CLI args go to Playwright, e.g. `bun run runDemo --grep login`
+const playwrightArgs = process.argv.slice(2)
+const processes: ServerProcess[] = []
+let testProc: ReturnType<typeof spawn> | undefined
 
 // Check if directories exist
 if (!existsSync(demoAppDir)) {
@@ -44,9 +52,6 @@ async function waitForPort(port: number, timeout = 10000): Promise<boolean> {
 async function runDemo() {
   console.log('🚀 Starting demo apps for all environments...')
 
-  // Start demo app processes
-  const processes: { proc: ReturnType<typeof spawn>; env: string; port: number }[] = []
-
   for (const env of environments) {
     const port = env === 'production' ? 3000 : env === 'staging' ? 3001 : 3002
 
@@ -66,10 +71,7 @@ async function runDemo() {
     const ready = await waitForPort(port, 15000)
     if (!ready) {
       console.error(`❌ ${env} environment failed to start on port ${port}`)
-      // Clean up already started processes
-      for (const p of processes) {
-        p.proc.kill()
-      }
+      await stopAll()
       process.exit(1)
     }
 
@@ -80,8 +82,8 @@ async function runDemo() {
 
   try {
     // Run e2e tests
-    const testProc = spawn({
-      cmd: ['bun', 'run', 'test'],
+    testProc = spawn({
+      cmd: ['bun', 'run', 'test', ...playwrightArgs],
       cwd: e2eDir,
       stdout: 'inherit',
       stderr: 'inherit',
@@ -103,20 +105,46 @@ async function runDemo() {
     // Clean up demo app processes
     console.log('🧹 Cleaning up demo app processes...')
 
-    for (const { proc, env, port } of processes) {
-      try {
-        proc.kill()
-        console.log(`✅ Stopped ${env} environment on port ${port}`)
-      } catch (error) {
-        console.warn(`⚠️  Failed to stop ${env} environment:`, error)
-      }
-    }
+    await stopAll()
 
     console.log('🏁 Demo run complete')
   }
 }
 
+installSignalHandlers()
+
 runDemo().catch((error) => {
   console.error('❌ Unexpected error:', error)
   process.exit(1)
 })
+
+function stopAll(): Promise<unknown> {
+  return Promise.all(processes.map(stopServer))
+}
+
+// Waits for the process to really exit, so the port is free when we say "Stopped"
+async function stopServer({ proc, env, port }: ServerProcess): Promise<void> {
+  proc.kill('SIGTERM')
+  const exited = await Promise.race([proc.exited, Bun.sleep(STOP_TIMEOUT_MS).then(() => null)])
+  if (exited === null) {
+    console.warn(`⚠️  ${env} did not exit in ${STOP_TIMEOUT_MS}ms, sending SIGKILL`)
+    proc.kill('SIGKILL')
+    await proc.exited
+  }
+  console.log(`✅ Stopped ${env} environment on port ${port}`)
+}
+
+// Ctrl-C / SIGTERM: stop the tests and let runDemo's finally stop the servers.
+// Before the tests start there is nothing to wait for, so stop the servers and exit.
+function installSignalHandlers(): void {
+  for (const [signal, code] of [
+    ['SIGINT', 130],
+    ['SIGTERM', 143],
+  ] as const) {
+    process.on(signal, () => {
+      process.exitCode = code
+      if (testProc) testProc.kill(signal)
+      else stopAll().finally(() => process.exit(code))
+    })
+  }
+}
