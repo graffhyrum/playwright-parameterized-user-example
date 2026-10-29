@@ -33,7 +33,7 @@ const proc = spawn({
 })
 
 // Forward termination to the server: without this, killing this wrapper orphans it
-for (const signal of ['SIGTERM', 'SIGINT'] as const) {
+for (const signal of ['SIGTERM', 'SIGINT', 'SIGHUP'] as const) {
   process.on(signal, () => proc.kill(signal))
 }
 
