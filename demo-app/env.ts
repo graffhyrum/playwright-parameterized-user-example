@@ -29,8 +29,13 @@ const proc = spawn({
   },
   stdout: 'inherit',
   stderr: 'inherit',
-  stdin: 'inherit',
+  stdin: 'ignore',
 })
+
+// Forward termination to the server: without this, killing this wrapper orphans it
+for (const signal of ['SIGTERM', 'SIGINT', 'SIGHUP'] as const) {
+  process.on(signal, () => proc.kill(signal))
+}
 
 proc.exited.then((code) => {
   process.exit(code)

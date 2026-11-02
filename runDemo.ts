@@ -11,6 +11,17 @@ import { spawn } from 'bun'
 const environments = ['production', 'staging', 'development'] as const
 const demoAppDir = join(process.cwd(), 'demo-app')
 const e2eDir = join(process.cwd(), 'e2e')
+const STOP_TIMEOUT_MS = 5000
+
+type Proc = ReturnType<typeof spawn>
+type ServerProcess = { proc: Proc; env: string; port: number }
+type StopSignal = 'SIGINT' | 'SIGTERM' | 'SIGHUP'
+
+// Extra CLI args go to Playwright, e.g. `bun run runDemo --grep login`
+const playwrightArgs = process.argv.slice(2)
+const processes: ServerProcess[] = []
+let testProc: Proc | undefined
+let stopping = false
 
 // Check if directories exist
 if (!existsSync(demoAppDir)) {
@@ -42,46 +53,14 @@ async function waitForPort(port: number, timeout = 10000): Promise<boolean> {
 }
 
 async function runDemo() {
-  console.log('🚀 Starting demo apps for all environments...')
-
-  // Start demo app processes
-  const processes: { proc: ReturnType<typeof spawn>; env: string; port: number }[] = []
-
-  for (const env of environments) {
-    const port = env === 'production' ? 3000 : env === 'staging' ? 3001 : 3002
-
-    console.log(`📦 Starting ${env} environment on port ${port}...`)
-
-    const proc = spawn({
-      cmd: ['bun', 'run', 'env.ts', env],
-      cwd: demoAppDir,
-      stdout: 'inherit',
-      stderr: 'inherit',
-      stdin: 'inherit',
-    })
-
-    processes.push({ proc, env, port })
-
-    // Wait for the app to be ready
-    const ready = await waitForPort(port, 15000)
-    if (!ready) {
-      console.error(`❌ ${env} environment failed to start on port ${port}`)
-      // Clean up already started processes
-      for (const p of processes) {
-        p.proc.kill()
-      }
-      process.exit(1)
-    }
-
-    console.log(`✅ ${env} environment ready on port ${port}`)
-  }
+  if (!(await startServers())) return
 
   console.log('🎯 All demo apps are running. Starting e2e tests...')
 
   try {
     // Run e2e tests
-    const testProc = spawn({
-      cmd: ['bun', 'run', 'test'],
+    testProc = spawn({
+      cmd: ['bun', 'run', 'test', ...playwrightArgs],
       cwd: e2eDir,
       stdout: 'inherit',
       stderr: 'inherit',
@@ -90,7 +69,10 @@ async function runDemo() {
 
     const testExitCode = await testProc.exited
 
-    if (testExitCode === 0) {
+    // After a signal the signal exit code (set in handleSignal) wins over the test exit code
+    if (stopping) {
+      console.log('🛑 Interrupted, tests stopped')
+    } else if (testExitCode === 0) {
       console.log('✅ All tests passed!')
     } else {
       console.log('❌ Some tests failed')
@@ -103,20 +85,134 @@ async function runDemo() {
     // Clean up demo app processes
     console.log('🧹 Cleaning up demo app processes...')
 
-    for (const { proc, env, port } of processes) {
-      try {
-        proc.kill()
-        console.log(`✅ Stopped ${env} environment on port ${port}`)
-      } catch (error) {
-        console.warn(`⚠️  Failed to stop ${env} environment:`, error)
-      }
-    }
+    await stopAll()
 
     console.log('🏁 Demo run complete')
   }
 }
 
-runDemo().catch((error) => {
+installSignalHandlers()
+
+runDemo().catch(async (error) => {
   console.error('❌ Unexpected error:', error)
+  try {
+    await stopAll()
+  } catch (stopError) {
+    console.error('❌ Failed to stop servers:', stopError)
+  }
   process.exit(1)
 })
+
+// Resolves false when startup was cut short: a stop began (the signal handler cleans up).
+async function startServers(): Promise<boolean> {
+  console.log('🚀 Starting demo apps for all environments...')
+
+  for (const env of environments) {
+    if (stopping) return false
+    const port = env === 'production' ? 3000 : env === 'staging' ? 3001 : 3002
+
+    console.log(`📦 Starting ${env} environment on port ${port}...`)
+
+    // Own process group, so one SIGKILL takes down the env.ts wrapper and the server together
+    const proc = spawn({
+      cmd: ['bun', 'run', 'env.ts', env],
+      cwd: demoAppDir,
+      stdout: 'inherit',
+      stderr: 'inherit',
+      // No stdin: a detached server in a background group would hit SIGTTIN on a terminal read
+      stdin: 'ignore',
+      detached: true,
+    })
+
+    processes.push({ proc, env, port })
+
+    // Wait for the app to be ready
+    const ready = await waitForPort(port, 15000)
+    if (stopping) return false
+    if (!ready) {
+      console.error(`❌ ${env} environment failed to start on port ${port}`)
+      await stopAll()
+      process.exit(1)
+    }
+
+    console.log(`✅ ${env} environment ready on port ${port}`)
+  }
+  return true
+}
+
+function stopAll(): Promise<unknown> {
+  return Promise.all(processes.map(stopServer))
+}
+
+// Waits for the process to really exit, so the port is free when we say "Stopped"
+async function stopServer({ proc, env, port }: ServerProcess): Promise<void> {
+  proc.kill('SIGTERM')
+  if (await timedOutWaiting(proc, STOP_TIMEOUT_MS)) {
+    console.warn(`⚠️  ${env} did not exit in ${STOP_TIMEOUT_MS}ms, sending SIGKILL`)
+    killGroup(proc)
+    await proc.exited
+  }
+  console.log(`✅ Stopped ${env} environment on port ${port}`)
+}
+
+// Cancellable timer: a pending Bun.sleep would keep the process alive after a fast stop
+async function timedOutWaiting(proc: Proc, ms: number): Promise<boolean> {
+  let timer: ReturnType<typeof setTimeout> | undefined
+  const timeout = new Promise<true>((resolve) => {
+    timer = setTimeout(() => resolve(true), ms)
+  })
+  const timedOut = await Promise.race([proc.exited.then(() => false), timeout])
+  clearTimeout(timer)
+  return timedOut
+}
+
+// A negative pid addresses the whole process group (wrapper + server)
+// Skips exited processes: their pid (and group) could already belong to someone else
+function killGroup(proc: Proc): void {
+  if (hasExited(proc)) return
+  try {
+    process.kill(-proc.pid, 'SIGKILL')
+  } catch {
+    // Group already gone
+  }
+}
+
+function hasExited(proc: Proc): boolean {
+  return proc.exitCode !== null || proc.signalCode !== null
+}
+
+// Ctrl-C / SIGTERM / SIGHUP: stop the tests and let runDemo's finally stop the servers.
+// Before the tests start there is nothing to wait for, so stop the servers and exit.
+// A second signal means "now": kill everything and exit.
+function installSignalHandlers(): void {
+  for (const [signal, code] of [
+    ['SIGINT', 130],
+    ['SIGTERM', 143],
+    ['SIGHUP', 129],
+  ] as const) {
+    process.on(signal, () => handleSignal(signal, code))
+  }
+}
+
+function handleSignal(signal: StopSignal, code: number): void {
+  if (stopping) forceExit(code)
+  stopping = true
+  process.exitCode = code
+  if (testProc) forwardToTests(testProc, signal)
+  else stopAll().finally(() => process.exit(code))
+}
+
+// A terminal sends Ctrl-C to the whole foreground group, so Playwright already has its
+// SIGINT, and a second one makes it force quit. Forward SIGINT only when stdin is no terminal.
+// So with a TTY stdin, a `kill -INT <pid>` from elsewhere is not forwarded: the tests run to
+// the end before cleanup. SIGHUP is forwarded as SIGTERM, which Playwright is known to handle.
+function forwardToTests(tests: Proc, signal: StopSignal): void {
+  if (signal === 'SIGINT' && process.stdin.isTTY) return
+  tests.kill(signal === 'SIGHUP' ? 'SIGTERM' : signal)
+}
+
+function forceExit(code: number): never {
+  for (const { proc } of processes) killGroup(proc)
+  if (testProc && !hasExited(testProc)) testProc.kill('SIGKILL')
+  process.exit(code)
+}

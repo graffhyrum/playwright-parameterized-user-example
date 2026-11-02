@@ -3,12 +3,12 @@
   "compilerOptions": {
     // Environment setup & latest features
     "lib": ["esnext", "dom"],
+    "types": ["bun"],
     "target": "ESNext",
     "module": "ESNext",
     "moduleDetection": "force",
     "jsx": "react-jsx",
     "allowJs": true,
-    "types": ["node"],
 
     // Bundler mode
     "moduleResolution": "bundler",
